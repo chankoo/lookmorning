@@ -1,4 +1,4 @@
-# WEATHER LOOK
+# Look Morning
 
 ## 개요
 피부에 와닿지 않는 날씨예보
