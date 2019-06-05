@@ -125,15 +125,15 @@ class Dailys(Resource):
         print(image)
         if image.filename == '':
             print("Image doesnt exist!!")
-            img_name = 'anonymous.JPG'
+            img_path = 'anonymous.JPG'
         else:
-            img_name = secure_filename(image.filename)
+            img_path = secure_filename(image.filename)
             image.save(os.path.join('./../static/img', secure_filename(image.filename)))
             print("Image saved")
         ###
 
         weather_id = Weather.query.filter_by(city=data['city'], date=data['date'], time=data['time']).id
-        new_daily = Daily(weather_id=weather_id, img_name=img_name, satis=None)
+        new_daily = Daily(weather_id=weather_id, img_path=img_path, satis=None)
 
         db.session.add(new_daily)
         db.session.commit()

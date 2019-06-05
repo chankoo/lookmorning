@@ -31,14 +31,14 @@ class Daily(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     weather_id = db.Column(db.Integer, db.ForeignKey('weather.id'))
-    img_name = db.Column(db.String)
+    img_path = db.Column(db.String)
     satis = db.Column(db.Integer)
 
     weather = relationship('Weather', backref=backref('daily', order_by=id))
 
-    def __init__(self, weather_id, img_name, satis):
+    def __init__(self, weather_id, img_path, satis):
         self.weather_id = weather_id
-        self.img_name = img_name
+        self.img_path = img_path
         self.satis = satis
 
 
