@@ -49,22 +49,19 @@ class Weather(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     city = db.Column(db.String)
-    date = db.Column(db.DATE)
-    time = db.Column(db.Integer)
+    datetime = db.Column(db.String)
     cluster = db.Column(db.Integer)
 
-    def __init__(self, city, date, time, cluster):
+    def __init__(self, city, datetime, cluster):
         self.city = city
-        self.date = date
-        self.time = time
         self.cluster = cluster
+        self.datetime = datetime
 
     def serialize(self):
         return json.dumps({
             'id': self.id,
             'city': self.city,
-            'date': self.date,
-            'time': self.time,
+            'datetime': self.datetime,
             'cluster': self.cluster
         })
 

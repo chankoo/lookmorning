@@ -67,10 +67,19 @@ class Weather5day(Resource):
 
 class WeatherPast(Resource):
     def get(self):
-        args = request.args # city, date, time
-        weather = Weather.query.filter_by(city=args['city'],date=args['date'],time=args['time'])
+        args = request.args # city, datetime
+        weather = Weather.query.filter_by(city=args['city'], datetime=args['datetime'])
         return weather.id
 
+    def post(self):
+        print(request)
+        data = request.get_json()  # city, datetime, cluster
+        print(data)
+        new_weather = Weather(city=data['city'], datetime=data['datetime'], cluster=data['cluster'])
+        db.session.add(new_weather)
+        db.session.commit()
+        return serializer([new_weather])
+        
 
 class ImageUpload(Resource):
     #---temp----------
@@ -117,7 +126,7 @@ class Dailys(Resource):
             return serializer(dailys)
 
     def post(self):
-        data = request.get_json() # 도시, 시간, ,[만족도]
+        data = request.get_json()  # city, timestamp, img, [satis]
         print(data)
 
         ###
@@ -132,8 +141,10 @@ class Dailys(Resource):
             print("Image saved")
         ###
 
-        weather_id = Weather.query.filter_by(city=data['city'], date=data['date'], time=data['time']).id
-        new_daily = Daily(weather_id=weather_id, img_path=img_path, satis=None)
+        ###
+        dt = datetime.datetime.fromtimestamp(data['timestamp']).strftime('%Y-%m-%d %H')
+        weather_id = Weather.query.filter_by(city=data['city'], datetime=dt).id
+        new_daily = Daily(weather_id=weather_id, img_path=img_path, satis=data['satis'])
 
         db.session.add(new_daily)
         db.session.commit()

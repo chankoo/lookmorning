@@ -4,7 +4,7 @@ from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
 # from models import db
-from api import WeatherNow, Weather5day, Users, ImageUpload
+from api import WeatherNow, Weather5day, Users, ImageUpload, WeatherPast
 from config import alchemy_uri
 
 from flask_sqlalchemy import SQLAlchemy
@@ -45,16 +45,21 @@ api = Api(app)
 # db.init_app(app)
 db = SQLAlchemy(app)
 db.create_all()
+db.session.commit()
 
 # api.add_resource(Auth, '/login/')
 api.add_resource(Users, '/users')
 api.add_resource(WeatherNow, '/weather')
 api.add_resource(Weather5day, '/weather5day')
 api.add_resource(ImageUpload, '/image-upload')
+api.add_resource(WeatherPast, '/weather/past')
 
 @app.route('/', methods=['GET'])
 def index():
     return 'Hello this is nginx_uwsgi_flask'
 
 if __name__ == '__main__':
+    # with app.app_context():
+    #     db.create_all()
+    #     db.session.commit()
     app.run(host='0.0.0.0', port=8080, debug=True)
