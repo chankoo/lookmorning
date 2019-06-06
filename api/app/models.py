@@ -41,7 +41,13 @@ class Daily(db.Model):
         self.img_path = img_path
         self.satis = satis
 
-
+    def serialize(self):
+        return json.dumps({
+            'id': self.id,
+            'weather_id': self.weather_id,
+            'img_path': self.img_path,
+            'satis': self.satis
+        })
 
 
 class Weather(db.Model):

@@ -74,6 +74,7 @@ class WeatherPast(Resource):
     def post(self):
         print(request)
         data = request.get_json()  # city, datetime, cluster
+
         print(data)
         new_weather = Weather(city=data['city'], datetime=data['datetime'], cluster=data['cluster'])
         db.session.add(new_weather)
@@ -126,25 +127,25 @@ class Dailys(Resource):
             return serializer(dailys)
 
     def post(self):
-        data = request.get_json()  # city, timestamp, img, [satis]
+        data = request.get_json()  # city, timestamp, img or imgpath, [satis]
         print(data)
 
         ###
-        image = request.files['image'] # 이미지파일
-        print(image)
-        if image.filename == '':
-            print("Image doesnt exist!!")
-            img_path = 'anonymous.JPG'
-        else:
-            img_path = secure_filename(image.filename)
-            image.save(os.path.join('./../static/img', secure_filename(image.filename)))
-            print("Image saved")
+        # image = request.files['image'] # 이미지파일
+        # print(image)
+        # if image.filename == '':
+        #     print("Image doesnt exist!!")
+        #     img_path = 'anonymous.JPG'
+        # else:
+        #     img_path = secure_filename(image.filename)
+        #     image.save(os.path.join('./../static/img', secure_filename(image.filename)))
+        #     print("Image saved")
         ###
 
-        ###
+        ### 기존 인스타 이미지 db 저
         dt = datetime.datetime.fromtimestamp(data['timestamp']).strftime('%Y-%m-%d %H')
-        weather_id = Weather.query.filter_by(city=data['city'], datetime=dt).id
-        new_daily = Daily(weather_id=weather_id, img_path=img_path, satis=data['satis'])
+        weather_id = Weather.query.filter_by(city=data['city'], datetime=dt).first().id
+        new_daily = Daily(weather_id=weather_id, img_path=data['img_path'], satis=data['satis'])
 
         db.session.add(new_daily)
         db.session.commit()

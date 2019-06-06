@@ -4,7 +4,7 @@ from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
 # from models import db
-from api import WeatherNow, Weather5day, Users, ImageUpload, WeatherPast
+from api import WeatherNow, Weather5day, Users, ImageUpload, WeatherPast, Dailys
 from config import alchemy_uri
 
 from flask_sqlalchemy import SQLAlchemy
@@ -53,6 +53,7 @@ api.add_resource(WeatherNow, '/weather')
 api.add_resource(Weather5day, '/weather5day')
 api.add_resource(ImageUpload, '/image-upload')
 api.add_resource(WeatherPast, '/weather/past')
+api.add_resource(Dailys, '/daily')
 
 @app.route('/', methods=['GET'])
 def index():
