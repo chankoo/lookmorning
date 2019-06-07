@@ -1,15 +1,17 @@
 from flask import request, make_response, render_template, redirect
 from flask_restful import Resource
-from models import db, User, Daily, Weather, MyScrap
-from utils import serializer
+from models import db, User, Daily, Weather, MyScrap, MyDaily
+from utils import serializer, dictionalizer
 import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from weather import query_now, query_5day
+import boto3
+
+import json
 
 import os
 from werkzeug.utils import secure_filename
 
-import boto3
 
 
 class Users(Resource):
@@ -55,14 +57,16 @@ class WeatherNow(Resource):
     def get(self):
         args = request.args
         print(args)
-        return query_now(args['city'], args['country'])
+        data = query_now(args['city'], args['country'])
+        return json.dumps(data)
 
 
 class Weather5day(Resource):
     def get(self):
         args = request.args
         print(args)
-        return query_5day(args['city'], args['country'])
+        data = query_5day(args['city'], args['country'])
+        return json.dumps(data)
 
 
 class WeatherPast(Resource):
@@ -109,22 +113,24 @@ class ImageUpload(Resource):
 
 
 class Dailys(Resource):
-    def get(self):
-        args = request.args
-        print(args)
-
-        # query by daily id
-        if 'id' in args:
-            daily = Daily.query.filter_by(id=args['id']).first()
-            return serializer([daily])
+    def get(self, cluster):
+        # # query by daily id
+        # if 'id' in args:
+        #     daily = Daily.query.filter_by(id=args['id']).first()
+        #     return serializer([daily])
 
         # query by weather cluster
-        elif 'cluster' in args:
-            weather_ids = Weather.query.filter_by(cluster=args['cluster'])
-            dailys = []
-            for w_id in weather_ids:
-                dailys.append(Daily.query.filter_by(weather_id=w_id).first())
-            return serializer(dailys)
+        weathers = Weather.query.filter_by(cluster=cluster).all()  # 현재 날씨와 같은 클러스터의 날씨들을 쿼리
+        dailys = []
+        for weather in weathers:
+            weather_dailys = Daily.query.filter_by(weather_id=weather.id).all()  # 해당 날씨에 촬영된 데일리룩 쿼리
+            weather_dt = Weather.query.filter_by(id=weather.id).first().datetime
+
+            for weather_daily in dictionalizer(weather_dailys):
+                weather_daily['datetime'] = weather_dt
+                dailys += [weather_daily]  # datetime이 추가된 weather_daily를 이어 붙인다
+
+        return json.dumps(dailys)
 
     def post(self):
         data = request.get_json()  # city, timestamp, img or imgpath, [satis]
@@ -142,38 +148,69 @@ class Dailys(Resource):
         #     print("Image saved")
         ###
 
-        ### 기존 인스타 이미지 db 저
+        ### 기존 인스타 이미지 db 저장
         dt = datetime.datetime.fromtimestamp(data['timestamp']).strftime('%Y-%m-%d %H')
         weather_id = Weather.query.filter_by(city=data['city'], datetime=dt).first().id
         new_daily = Daily(weather_id=weather_id, img_path=data['img_path'], satis=data['satis'])
-
         db.session.add(new_daily)
         db.session.commit()
+
+        ## 유저가 데일리 등록한다면 MyDaily 객체 create까지 해줘야함
+
         return serializer([new_daily])
 
 
-class Scraps(Resource):
-    def get(self):
-        daily_id = request.args.get('daily_id')
-        user_id = request.args.get('user_id')
-
-        if user_id and daily_id:
-            scraps = MyScrap.query.filter_by(
-                daily_id=daily_id).filter_by(
+class MyDailys(Resource):
+    def get(self, user_id):
+        print(MyDaily.query.filter_by(user_id=user_id).all())
+        if user_id:
+            my_dailys = MyDaily.query.filter_by(
                 user_id=user_id).all()
-        elif daily_id:
-            scraps = MyScrap.query.filter_by(
-                article_id=daily_id).all()
-        elif user_id:
+        else:
+            return "user not found"
+
+        dailys = []
+        for my_daily in my_dailys:
+            daily_ = Daily.query.filter_by(id=my_daily.daily_id).first()
+            daily = {}
+            daily['daily_id'] = daily_.id
+            daily['img_path'] = daily_.img_path
+            daily['datetime'] = Weather.query.filter_by(id=daily_.weather_id).first().datetime
+            daily['satis'] = daily_.satis
+            dailys.append(daily)
+        return json.dumps({"dailys": dailys})
+
+    # def post(self, user_id):
+    #     data = request.get_json()
+    #     daily_id = data['daily_id']
+    #     new_scrap = MyScrap(user_id, daily_id)
+    #     db.session.add(new_scrap)
+    #     db.session.commit()
+    #     return "scrap successfully"
+
+
+class MyScraps(Resource):
+    def get(self, user_id):
+        print(MyScrap.query.filter_by(user_id=user_id).all())
+        if user_id:
             scraps = MyScrap.query.filter_by(
                 user_id=user_id).all()
         else:
-            scraps = MyScrap.query.all()
-        return serializer(scraps)
+            return "user not found"
 
-    def post(self):
+        dailys = []
+        for scrap in scraps:
+            daily_ = Daily.query.filter_by(id=scrap.daily_id).first()
+            daily = {}
+            daily['daily_id'] = daily_.id
+            daily['img_path'] = daily_.img_path
+            daily['datetime'] = Weather.query.filter_by(id=daily_.weather_id).first().datetime
+            daily['satis'] = daily_.satis
+            dailys.append(daily)
+        return json.dumps({"dailys": dailys})
+
+    def post(self, user_id):
         data = request.get_json()
-        user_id = data['user_id']
         daily_id = data['daily_id']
         scrap = MyScrap.query.filter_by(
             user_id=user_id).filter_by(
@@ -182,12 +219,12 @@ class Scraps(Resource):
         if scrap:
             db.session.delete(scrap)
             db.session.commit()
-            return "unlike successfully"
+            return "unscrap successfully"
+
         new_scrap = MyScrap(user_id, daily_id)
         db.session.add(new_scrap)
         db.session.commit()
-        return "like successfully"
-
+        return "scrap successfully"
 
 
 

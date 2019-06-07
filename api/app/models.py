@@ -82,6 +82,17 @@ class MyDaily(db.Model):
     user = relationship('User', backref=backref('mydaily', order_by=id))
     daily = relationship('Daily', backref=backref('mydaily', order_by=id))
 
+    def __init__(self, user_id, daily_id):
+        self.user_id = user_id
+        self.daily_id = daily_id
+
+    def serialize(self):
+        return json.dumps({
+            'id': self.id,
+            'user_id': self.user_id,
+            'daily_id': self.daily_id,
+        })
+
 
 class MyScrap(db.Model):
     __tablename__ = 'myscrap'
@@ -96,3 +107,10 @@ class MyScrap(db.Model):
     def __init__(self, user_id, daily_id):
         self.user_id = user_id
         self.daily_id = daily_id
+
+    def serialize(self):
+        return json.dumps({
+            'id': self.id,
+            'user_id': self.user_id,
+            'daily_id': self.daily_id,
+        })
