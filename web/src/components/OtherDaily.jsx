@@ -14,7 +14,7 @@ class OtherDaily extends React.Component {
     componentDidMount=()=>{
         console.log('OtherDaily componentDidMount')
         const {cluster} = this.props
-
+        
         const base = "http://0.0.0.0:8080/daily/"
         const url = base + cluster
         fetch(url, {
@@ -36,15 +36,16 @@ class OtherDaily extends React.Component {
         })
     }
 
-
     render(){
         const {dailys} = this.state
+        const {user_id} = this.props
 
         // dailys 배열을 map 이용해 컴포넌트 배열로 변환
         const otherDailys = dailys.map(
             ({id, datetime, img_path, satis}) => (
                 <Daily
                     daily_id={id}
+                    user_id={user_id}
                     datetime={datetime}
                     img_path={img_path}
                     satis={satis}
@@ -52,7 +53,6 @@ class OtherDaily extends React.Component {
                 />
             )
         )
-
 
         return(
             <React.Fragment>

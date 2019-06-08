@@ -28,6 +28,7 @@ CREATE TABLE myscrap (id INT PRIMARY KEY AUTO_INCREMENT, user_id INT, daily_id I
 
 CREATE TABLE mydaily (id INT PRIMARY KEY AUTO_INCREMENT, user_id INT, daily_id INT, FOREIGN KEY (user_id) REFERENCES user (id), FOREIGN KEY (daily_id) REFERENCES daily (id) ) ENGINE=INNODB;
 
+CREATE TABLE login_session (id INT PRIMARY KEY AUTO_INCREMENT, user_id INT, jti VARCHAR(500), FOREIGN KEY (user_id) REFERENCES user (id)) ENGINE=INNODB;
 
 INSERT INTO mydaily (user_id, daily_id) VALUES (1, 307);
 

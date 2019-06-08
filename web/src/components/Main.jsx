@@ -1,15 +1,14 @@
 import React from 'react'
 import './Main.css'
 import Nav from './Nav'
-// import Articles from './Articles'
 import { Button } from 'antd'
 import { Link } from "react-router-dom"
 import CurrentWeather from './CurrentWeather'
 import WeeklyWeather from './WeeklyWeather'
-
 import MyDaily from './MyDaily'
 import MyScrap from './MyScrap'
 import OtherDaily from './OtherDaily'
+import {getUser} from '../authentication'
 
 class MainPage extends React.Component {
   constructor(props){
@@ -17,12 +16,13 @@ class MainPage extends React.Component {
     this.state = {
       'city': 'Seoul',
       'country': 'KR',
-      'timestamp': Date.now()
+      'timestamp': Date.now(),
+      'USER': getUser()
     }
   }
 
   render() {
-    const {city, country} = this.state
+    const {city, country, USER} = this.state
   
     return (
       <React.Fragment>
@@ -31,34 +31,36 @@ class MainPage extends React.Component {
           <Button type="primary">Go to Blank</Button>
         </Link>
 
-        <div className="main-wrapper">
-          <div className="CurrentWeather-container">
+        <section className="weather-wrapper">
+          <section className="weather-container">
             <CurrentWeather city={city} country={country}/>
-          </div>
+          </section>
 
-          {/* <div className="HourlyWeather-container">
+          {/* <div className="weather-container">
             <HourlyWeather></HourlyWeather>
           </div> */}
 
-          <div className="WeeklyWeather-container">
+          <section className="weather-container">
             <WeeklyWeather city={city} country={country}/>
-          </div>
+          </section>
+        </section>
 
-          <div className="MyDaily-container">
-            <MyDaily user_id={1}></MyDaily>
-          </div>
+        <section className='daily-wrapper'>
+          <section className="myDaily-container">
+            <MyDaily user_id={USER.id}></MyDaily>
+          </section>
 
-          <div className="MyScrap-container">
-            <MyScrap user_id={1}></MyScrap>
-          </div>
+          <section className="myScrap-container">
+            <MyScrap user_id={USER.id}></MyScrap>
+          </section>
 
-        </div>
+        </section>
 
-        <div className="main-more-wrapper">
-          <div className="OtherDaily-container">
-            <OtherDaily cluster={3}></OtherDaily>
+        <section className="more-daily-wrapper">
+          <div className="otherDaily-container">
+            <OtherDaily cluster={3} user_id={USER.id}></OtherDaily>
           </div>
-        </div>
+        </section>
 
       </React.Fragment>
     )

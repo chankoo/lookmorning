@@ -1,6 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship, backref
 import json
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 db = SQLAlchemy()
 
@@ -15,8 +17,13 @@ class User(db.Model):
 
     def __init__(self, name, password):
         self.name = name
-        self.password = password
+        self.set_password(password)
 
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
 
     def serialize(self):
         return json.dumps({
@@ -114,3 +121,18 @@ class MyScrap(db.Model):
             'user_id': self.user_id,
             'daily_id': self.daily_id,
         })
+
+
+class LoginSession(db.Model):
+    __tablename_ = 'login_session'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    jti = db.Column(db.Text)
+
+    user = relationship('User')
+
+    def __init__(self, user_id, jti):
+        self.user_id = user_id
+        self.jti = jti
+
