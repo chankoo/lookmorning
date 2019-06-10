@@ -54,7 +54,8 @@ class MyDaily extends React.Component {
                     img_path={img_path}
                     satis={satis}
                     creater_id={null}
-                    scrap={false}
+                    is_scrap={false}
+                    is_mine={true}
                     key={daily_id}
                 />
             )

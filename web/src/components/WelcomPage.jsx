@@ -41,12 +41,6 @@ class WelcomePage extends React.Component {
                 </div>
             </div>
 
-            <div className="main-more-wrapper">
-                <div className="OtherDaily-container">
-                <OtherDaily cluster={3}></OtherDaily>
-                </div>
-            </div>
-
         </React.Fragment>
     )
   }

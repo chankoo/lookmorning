@@ -32,6 +32,7 @@ class MyScrap extends React.Component {
         .then(response => {
             const data = response
             console.log(data.message)
+
             this.setState({
                 'dailys': data['dailys']
             })
@@ -41,9 +42,18 @@ class MyScrap extends React.Component {
         })
     }
 
+    handleDailysUpdate=(daily_id)=>{
+        console.log('handleDailysUpdate')
+        
+        this.setState({
+            'dailys': this.state.dailys
+        })
+    }
+
     render(){
         const {dailys} = this.state
         const {user_id} = this.props
+        const {handleDailysUpdate} =this
 
         // dailys 배열을 map 이용해 컴포넌트 배열로 변환
         const myScraps = dailys.map(
@@ -55,8 +65,9 @@ class MyScrap extends React.Component {
                     img_path={img_path}
                     satis={satis}
                     creater_id={creater_id}
-                    scrap={true}
+                    is_scrap={true}
                     key={daily_id}
+                    handleDailysUpdate={handleDailysUpdate}
                 />
             )
         )

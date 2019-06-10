@@ -1,6 +1,6 @@
 .card-container{
-    width: 300px;
-    height: 400px;
+    max-width: 100%;
+    max-height: auto;
     border: 1.5px solid black;
     border-radius: 15px;
     box-shadow: 5px 5px 10px;
@@ -9,9 +9,10 @@
     transition: all 0.5s;
 }
 
+
 .card-container img{
-    width: 300px;
-    height: 300px;
+    max-width: 300px;
+    max-height: auto;
     border-radius: 15px;
 }
 
@@ -19,3 +20,6 @@
     cursor: pointer;
     background-color: #b4c1ce;
 }
+
+
+

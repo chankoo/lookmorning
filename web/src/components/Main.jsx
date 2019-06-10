@@ -32,17 +32,17 @@ class MainPage extends React.Component {
         </Link>
 
         <section className="weather-wrapper">
-          <section className="weather-container">
+          {/* <section className="weather-container">
             <CurrentWeather city={city} country={country}/>
-          </section>
+          </section> */}
 
           {/* <div className="weather-container">
             <HourlyWeather></HourlyWeather>
           </div> */}
 
-          <section className="weather-container">
+          {/* <section className="weather-container">
             <WeeklyWeather city={city} country={country}/>
-          </section>
+          </section> */}
         </section>
 
         <section className='daily-wrapper'>

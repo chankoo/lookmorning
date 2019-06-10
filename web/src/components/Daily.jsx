@@ -10,15 +10,17 @@ class Daily extends React.Component {
     constructor(props){
         super(props)
         this.state = {
-            'is_scrap':this.props.scrap
+            'is_scrap':this.props.is_scrap,
         }
     }
 
     handleScrap=(user_id, daily_id) =>{
         console.log('handleScrap')
-        this.setState = {
+        const {handleDailysUpdate} = this.props
+
+        this.setState({
             'is_scrap': !this.state.is_scrap
-        }
+        })
 
         const requestOptions = {
             method: 'POST',
@@ -34,57 +36,80 @@ class Daily extends React.Component {
         .then(util.handleResponse)
         .then(response => {
             console.log(response.message)
-            history.push('/main')
+            handleDailysUpdate(daily_id)
         })
         .catch(error => {
-            console.log(error)
+            alert(error)
         })
+    }
+
+    handleSize=()=>{
+        console.log('handleSize')
+
+
     }
 
     render(){
         const {daily_id, user_id, datetime, img_path, satis, creater_id} = this.props
         const {is_scrap} = this.state
-        const {handleScrap} = this
+        const {handleScrap, handleSize} = this
 
         return(
             <div className="card-container">
                 <Card
-                    size="default"
                     cover={
-                    <img
-                        className="img"
-                        alt="dailylook image"
-                        daily_id={daily_id}
-                        src={img_path}
-                    />
+                        <img
+                            className="img"
+                            alt="dailylook image"
+                            id={daily_id}
+                            src={img_path}
+                            onClick={(e)=>{
+                                const el = document.getElementById({daily_id}.daily_id)
+                                if(el.style.maxWidth != "100%"){
+                                    el.setAttribute("style", "max-width: 100%")
+                                }
+                                else{
+                                    el.setAttribute("style", "max-width: 300px")
+                                }
+                                
+                                handleSize()
+                            }}
+                        />
                     }
-                    // actions={[<Icon type="setting" />, <Icon type="edit" />, <Icon type="ellipsis" />]}
                     actions= {
-                        is_scrap 
-                        && 
-                        [<Icon 
-                            type="heart" 
-                            theme="filled"
-                            onClick={(e)=>{
-                                e.preventDefault()
-                                handleScrap(user_id, daily_id)
-                            }}
-                        />]
-                        ||
-                        !is_scrap
+                        !this.props.is_mine
                         &&
-                        [<Icon 
-                            type="heart"
-                            onClick={(e)=>{
-                                e.preventDefault()
-                                handleScrap(user_id, daily_id)
-                            }}
-                        />]
+                        (
+                        is_scrap 
+                            &&
+                            
+                                [<Icon 
+                                    type="heart" 
+                                    theme="filled"
+                                    onClick={(e)=>{
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                        handleScrap(user_id, daily_id)
+                                    }}/>]
+
+                            ||
+                            !is_scrap
+                            &&
+                                [<Icon 
+                                    type="heart"
+                                    onClick={(e)=>{
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                        handleScrap(user_id, daily_id)
+                                    }}
+                                />]
+                        )
                     }
                 > 
                     <Meta
-                    title={datetime}
-                    description={creater_id}
+                        title={datetime}
+                        description={creater_id}
+                        // style={{width:"300px", height:"50px"}}
                     />
                 </Card>
             </div>

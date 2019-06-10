@@ -106,11 +106,20 @@ class ImageUpload(Resource):
 
 
 class Dailys(Resource):
-    def get(self, cluster):
+    def get(self, user_id, cluster):
         # # query by daily id
         # if 'id' in args:
         #     daily = Daily.query.filter_by(id=args['id']).first()
         #     return serializer([daily])
+
+        # dailys user created or scrapped must be excepted
+        except_daily_ids = []
+        mydailys = MyDaily.query.filter_by(user_id=user_id).all()
+        myscraps = MyScrap.query.filter_by(user_id=user_id).all()
+        for mydaily in mydailys:
+            except_daily_ids.append(mydaily.daily_id)
+        for myscrap in myscraps:
+            except_daily_ids.append((myscrap.daily_id))
 
         # query by weather cluster
         weathers = Weather.query.filter_by(cluster=cluster).all()  # 현재 날씨와 같은 클러스터의 날씨들을 쿼리
@@ -121,6 +130,8 @@ class Dailys(Resource):
 
             for weather_daily in dictionalizer(weather_dailys):
                 weather_daily['datetime'] = weather_dt
+                if weather_daily['id'] in except_daily_ids:
+                    continue
                 dailys += [weather_daily]  # datetime이 추가된 weather_daily를 이어 붙인다
 
         random.shuffle(dailys)
@@ -172,6 +183,7 @@ class MyDailys(Resource):
             daily['img_path'] = daily_.img_path
             daily['datetime'] = Weather.query.filter_by(id=daily_.weather_id).first().datetime
             daily['satis'] = daily_.satis
+            daily['is_scrap'] = False
             dailys.append(daily)
         return jsonify({"dailys": dailys, 'message': "get MyDaily successfully"})
 
@@ -204,6 +216,7 @@ class MyScraps(Resource):
             daily['img_path'] = daily_.img_path
             daily['datetime'] = Weather.query.filter_by(id=daily_.weather_id).first().datetime
             daily['satis'] = daily_.satis
+            daily['is_scrap'] = True
             if daily_creater:
                 daily['creater_id'] = daily_creater.user_id
             dailys.append(daily)
@@ -212,6 +225,13 @@ class MyScraps(Resource):
     def post(self, user_id):
         data = request.get_json()
         daily_id = data['daily_id']
+
+        if MyDaily.query.filter_by(
+            user_id=user_id).filter_by(
+            daily_id=daily_id).first():
+            abort(400, "can not scrap your own image")
+            return jsonify({"message": "can not scrap your own image"})
+
         scrap = MyScrap.query.filter_by(
             user_id=user_id).filter_by(
             daily_id=daily_id).first()
