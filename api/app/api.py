@@ -86,7 +86,9 @@ class ImageUpload(Resource):
         return make_response(render_template("upload_image_temp.html"), 200, headers)
     #--------------
 
-    def post(self):
+    def post(self, user_id):
+        print('ImageUpload post')
+
         if request.files:
             image = request.files['image']
             print(image)
@@ -95,14 +97,14 @@ class ImageUpload(Resource):
                 return redirect(request.url)
 
             #------------
-            # image.save(os.path.join('./../static/img', secure_filename(image.filename)))
             s3 = boto3.resource('s3')
-            s3.Bucket('project-lookmorning').put_object(Key=image.filename, Body=image)
+            client = s3.Bucket('project-lookmorning').put_object(Key=image.filename, Body=image)
 
             #-------------
             print("Image saved")
             return "image {} has posted".format(image)
-        return make_response(404)
+        print('!!')
+        return jsonify({'message': "ImageUpload fail"})
 
 
 class Dailys(Resource):
@@ -119,7 +121,7 @@ class Dailys(Resource):
         for mydaily in mydailys:
             except_daily_ids.append(mydaily.daily_id)
         for myscrap in myscraps:
-            except_daily_ids.append((myscrap.daily_id))
+            except_daily_ids.append(myscrap.daily_id)
 
         # query by weather cluster
         weathers = Weather.query.filter_by(cluster=cluster).all()  # 현재 날씨와 같은 클러스터의 날씨들을 쿼리
@@ -137,23 +139,25 @@ class Dailys(Resource):
         random.shuffle(dailys)
         return json.dumps(dailys)
 
-    def post(self):
+    def post(self, user_id):
         data = request.get_json()  # city, timestamp, img or imgpath, [satis]
         print(data)
 
         ###
-        # image = request.files['image'] # 이미지파일
-        # print(image)
-        # if image.filename == '':
-        #     print("Image doesnt exist!!")
-        #     img_path = 'anonymous.JPG'
-        # else:
-        #     img_path = secure_filename(image.filename)
-        #     image.save(os.path.join('./../static/img', secure_filename(image.filename)))
-        #     print("Image saved")
+        image = request.files['image']  # 이미지파일
+        print(image)
+        if image.filename == '':
+            print("Image doesnt exist!!")
+            img_path = 'anonymous.JPG'
+        else:
+            img_path = secure_filename(image.filename)
+            image.save(os.path.join('./../static/img', secure_filename(image.filename)))
+            print("Image saved")
         ###
 
-        ### 기존 인스타 이미지 db 저장
+        ### 기존 인스타 이미지 db 저장(passed with imgpath)
+
+
         dt = datetime.datetime.fromtimestamp(data['timestamp']).strftime('%Y-%m-%d %H')
         weather_id = Weather.query.filter_by(city=data['city'], datetime=dt).first().id
         new_daily = Daily(weather_id=weather_id, img_path=data['img_path'], satis=data['satis'])

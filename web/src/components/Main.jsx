@@ -27,8 +27,8 @@ class MainPage extends React.Component {
     return (
       <React.Fragment>
         <Nav />
-        <Link to="/blank">
-          <Button type="primary">Go to Blank</Button>
+        <Link to="/upload">
+          <Button type="primary">Upload</Button>
         </Link>
 
         <section className="weather-wrapper">
