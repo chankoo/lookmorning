@@ -89,7 +89,7 @@ class ImageUpload(Resource):
         return make_response(render_template("upload_image_temp.html"), 200, headers)
     #--------------
 
-    def post(self, user_id):
+    def post(self, user_id):  # s3에 post 후 db add 위해 필요한 정보 리턴
         if request.files:
             image = request.files['image']  # <class 'werkzeug.datastructures.FileStorage'>
 
@@ -100,6 +100,7 @@ class ImageUpload(Resource):
             ## userid, 파일이름, timestamp 받아서 파일이름 생성
             exifTS = ''
             fn = image.filename
+            read_img = image.read()
             i = Image.open(image.stream)
 
             try:
@@ -126,32 +127,19 @@ class ImageUpload(Resource):
             else:
                 dt = datetime.datetime.now().strftime('%Y-%m-%d %H')  # 촬영시간 없는 경우 현재시간을 dt로 사용
 
-            file_name = secure_filename('_'.join(['daily', str(user_id), dt.split()[0], fn]))
+            file_name = secure_filename('_'.join([str(user_id), dt.split()[0], fn]))
 
-            #------------ s3 업로드 후
+            #s3 업로드
             s3 = boto3.resource('s3')
-            s3.Bucket('project-lookmorning').put_object(Key='dailylook/' + file_name, Body=image)
-            #-------------
+            s3.Bucket('project-lookmorning').put_object(Key='dailylook/'+file_name, Body=read_img, ContentType='image/jpeg', ACL='public-read')
 
 
-            # ## daily record 생성 (id, weather_id, img_path, satis
-            img_path = 'https://project-lookmorning.s3.ap-northeast-2.amazonaws.com/dailylook/{}'.format(file_name)
-            satis = 1  #### by json
-            weather_id = Weather.query.filter_by(city='Seoul', datetime=dt).first().id  ## city
-            new_daily = Daily(weather_id=weather_id, img_path=img_path, satis=satis)
-            db.session.add(new_daily)
-            db.session.commit()
+            return jsonify({
+                'message': "Image {} Uploaded to S3".format(file_name),
+                'filename': file_name,
+                'dt': dt
+                })
 
-            ## mydaily record 생성 (id, user_id, daily_id
-            daily_id = Daily.query.filter_by(img_path=img_path).first().id
-            new_myDaily = MyDaily(user_id, daily_id)
-            db.session.add(new_myDaily)
-
-            db.session.commit()
-            print("Image saved~~~~~")
-            return jsonify({'message': "Image {} Uploaded".format(file_name)})
-
-        ## 프론트에서 변화 보여주기
         return jsonify({'message': "ImageUpload fail"})
 
 
@@ -187,33 +175,37 @@ class Dailys(Resource):
         random.shuffle(dailys)
         return json.dumps(dailys)
 
-    def post(self, user_id): ## image 직접업로드와 합쳐져야함
-        daa = request.get_json()  # city, timestamp, img or imgpath, [satis]
-        print(data)
+    def post(self, user_id):  ## Image upload 후 진
+        data = request.get_json()  # city, dt or timestamp , imgpath, satis
 
-        ###
-        image = request.files['image']  # 이미지파일
-        print(image)
-        if image.filename == '':
-            print("Image doesnt exist!!")
-            img_path = 'anonymous.JPG'
-        else:
-            img_path = secure_filename(image.filename)
-            image.save(os.path.join('./../static/img', secure_filename(image.filename)))
-            print("Image saved")
-        ###
+        ## daily record 생성 (id, weather_id, img_path, satis)
+        img_path = 'https://project-lookmorning.s3.ap-northeast-2.amazonaws.com/dailylook/{}'.format(data['file_name'])
+        satis = data['satis']
+        dt = data['dt']
+        city = data['city']
 
-        ### 기존 인스타 이미지 db 저장(passed with imgpath)
-
-        dt = datetime.datetime.fromtimestamp(data['timestamp']).strftime('%Y-%m-%d %H')
-        weather_id = Weather.query.filter_by(city=data['city'], datetime=dt).first().id
-        new_daily = Daily(weather_id=weather_id, img_path=data['img_path'], satis=data['satis'])
+        weather_id = Weather.query.filter_by(city=city, datetime=dt).first().id
+        new_daily = Daily(weather_id=weather_id, img_path=img_path, satis=satis)
         db.session.add(new_daily)
         db.session.commit()
 
-        ## 유저가 데일리 등록한다면 MyDaily 객체 create까지 해줘야함
+        ## mydaily record 생성 (id, user_id, daily_id)
+        daily_id = Daily.query.filter_by(img_path=img_path).first().id
+        new_myDaily = MyDaily(user_id, daily_id)
+        db.session.add(new_myDaily)
 
-        return serializer([new_daily])
+        db.session.commit()
+
+
+        ### 기존 인스타 이미지 db 저장(passed with imgpath)
+        # dt = datetime.datetime.fromtimestamp(data['timestamp']).strftime('%Y-%m-%d %H')
+        # weather_id = Weather.query.filter_by(city=data['city'], datetime=dt).first().id
+        # new_daily = Daily(weather_id=weather_id, img_path=data['img_path'], satis=data['satis'])
+        # db.session.add(new_daily)
+        # db.session.commit()행
+
+
+        return jsonify({'message': "MyDaily uploaded"})
 
 
 class MyDailys(Resource):

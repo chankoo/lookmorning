@@ -63,7 +63,10 @@ api.add_resource(WeatherPast, '/weather/past')
 api.add_resource(MyScraps, '/user/<int:user_id>/myscrap')
 api.add_resource(MyDailys, '/user/<int:user_id>/mydaily')
 
-api.add_resource(Dailys, '/daily/<int:user_id>/<int:cluster>')
+api.add_resource(Dailys,
+                 '/daily/<int:user_id>/<int:cluster>',
+                 '/daily/<int:user_id>'
+                 )
 
 api.add_resource(ImageUpload, '/daily/<int:user_id>/image-upload')
 
