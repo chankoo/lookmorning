@@ -1,76 +1,51 @@
 import React from 'react'
-import { Upload, Button, Icon, message } from 'antd';
-import { Upload, Icon, message } from 'antd';
-
+// import { Upload, Button, Icon, message } from 'antd';
 import { getAToken, getRToken, getUser } from "../authentication"
 import * as util from '../util' 
+import {history } from './history'
+
 
 class UploadPage extends React.Component {
-    
-
-function getBase64(img, callback) {
-  const reader = new FileReader();
-  reader.addEventListener('load', () => callback(reader.result));
-  reader.readAsDataURL(img);
-}
-
-function beforeUpload(file) {
-  const isJPG = file.type === 'image/jpeg';
-  if (!isJPG) {
-    message.error('You can only upload JPG file!');
-  }
-  const isLt2M = file.size / 1024 / 1024 < 2;
-  if (!isLt2M) {
-    message.error('Image must smaller than 2MB!');
-  }
-  return isJPG && isLt2M;
-}
-
-class Avatar extends React.Component {
-  state = {
-    loading: false,
-  };
-
-  handleChange = info => {
-    if (info.file.status === 'uploading') {
-      this.setState({ loading: true });
-      return;
+    constructor(props){
+        super(props)
+        this.state = {
+            user: getUser(),
+            loading: false,
+        }
     }
-    if (info.file.status === 'done') {
-      // Get this url from response in real world.
-      getBase64(info.file.originFileObj, imageUrl =>
-        this.setState({
-          imageUrl,
-          loading: false,
-        }),
-      );
+
+
+    render(){
+        console.log("UploadPage render") 
+        return(
+            // <div className="img-uploader">
+            //     <Button className="upload-btn">
+            //         Upload
+            //     </Button>
+            // </div>
+
+            <div className="container">
+                <div className="row">
+                    <div className="col">
+                        <h1>Upload an image</h1>
+
+                        <form action="http://localhost:8080/daily/1/image-upload" method="POST" enctype="multipart/form-data">
+                            <div className="form-group">
+                                <label>Select image</label>
+                                <div className="custom-file">
+                                    <input type="file" className="custom-file-input" name="image" id="image"/>
+                                    <label className="custom-file-label" for="image">Select image...</label>
+                                </div>
+                            </div>
+
+                            <button type="submit" className="btn btn-primary">Upload</button>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        )
     }
-  };
-
-  render() {
-    const uploadButton = (
-      <div>
-        <Icon type={this.state.loading ? 'loading' : 'plus'} />
-        <div className="ant-upload-text">Upload</div>
-      </div>
-    );
-    const imageUrl = this.state.imageUrl;
-    return (
-      <Upload
-        name="avatar"
-        listType="picture-card"
-        className="avatar-uploader"
-        showUploadList={false}
-        action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-        beforeUpload={beforeUpload}
-        onChange={this.handleChange}
-      >
-        {imageUrl ? <img src={imageUrl} alt="avatar" /> : uploadButton}
-      </Upload>
-    );
-  }
 }
-
-ReactDOM.render(<Avatar />, mountNode);
 
 export default UploadPage

@@ -11,6 +11,9 @@ import random
 import os
 from werkzeug.utils import secure_filename
 
+from PIL import Image
+from PIL.ExifTags import TAGS
+
 from flask_jwt_extended import (
     JWTManager, create_access_token, create_refresh_token,
     jwt_required, jwt_refresh_token_required, get_jwt_identity,
@@ -87,23 +90,68 @@ class ImageUpload(Resource):
     #--------------
 
     def post(self, user_id):
-        print('ImageUpload post')
-
         if request.files:
-            image = request.files['image']
-            print(image)
+            image = request.files['image']  # <class 'werkzeug.datastructures.FileStorage'>
+
             if image.filename == '':
                 print("Image doesnt exist!!")
                 return redirect(request.url)
 
-            #------------
-            s3 = boto3.resource('s3')
-            client = s3.Bucket('project-lookmorning').put_object(Key=image.filename, Body=image)
+            ## userid, 파일이름, timestamp 받아서 파일이름 생성
+            exifTS = ''
+            fn = image.filename
+            i = Image.open(image.stream)
 
+            try:
+                info = i._getexif()
+                for tag, value in info.items():
+                    decoded = TAGS.get(tag, tag)
+                    if decoded == 'DateTimeOriginal':
+                        exifTS = value
+                        break
+                    elif decoded == 'DateTimeDigitized':
+                        exifTS = value
+                        break
+                    elif decoded == 'DateTime':
+                        exifTS = value
+                        break
+            except Exception as e:
+                print(e)
+                pass
+
+            print('exifTS', exifTS)
+            if exifTS != '':
+                dt = datetime.datetime.strptime(exifTS, '%Y:%m:%d %H:%M:%S').strftime('%Y-%m-%d %H')
+
+            else:
+                dt = datetime.datetime.now().strftime('%Y-%m-%d %H')  # 촬영시간 없는 경우 현재시간을 dt로 사용
+
+            file_name = secure_filename('_'.join(['daily', str(user_id), dt.split()[0], fn]))
+
+            #------------ s3 업로드 후
+            s3 = boto3.resource('s3')
+            s3.Bucket('project-lookmorning').put_object(Key='dailylook/' + file_name, Body=image)
             #-------------
-            print("Image saved")
-            return "image {} has posted".format(image)
-        print('!!')
+
+
+            # ## daily record 생성 (id, weather_id, img_path, satis
+            img_path = 'https://project-lookmorning.s3.ap-northeast-2.amazonaws.com/dailylook/{}'.format(file_name)
+            satis = 1  #### by json
+            weather_id = Weather.query.filter_by(city='Seoul', datetime=dt).first().id  ## city
+            new_daily = Daily(weather_id=weather_id, img_path=img_path, satis=satis)
+            db.session.add(new_daily)
+            db.session.commit()
+
+            ## mydaily record 생성 (id, user_id, daily_id
+            daily_id = Daily.query.filter_by(img_path=img_path).first().id
+            new_myDaily = MyDaily(user_id, daily_id)
+            db.session.add(new_myDaily)
+
+            db.session.commit()
+            print("Image saved~~~~~")
+            return jsonify({'message': "Image {} Uploaded".format(file_name)})
+
+        ## 프론트에서 변화 보여주기
         return jsonify({'message': "ImageUpload fail"})
 
 
@@ -139,8 +187,8 @@ class Dailys(Resource):
         random.shuffle(dailys)
         return json.dumps(dailys)
 
-    def post(self, user_id):
-        data = request.get_json()  # city, timestamp, img or imgpath, [satis]
+    def post(self, user_id): ## image 직접업로드와 합쳐져야함
+        daa = request.get_json()  # city, timestamp, img or imgpath, [satis]
         print(data)
 
         ###
@@ -156,7 +204,6 @@ class Dailys(Resource):
         ###
 
         ### 기존 인스타 이미지 db 저장(passed with imgpath)
-
 
         dt = datetime.datetime.fromtimestamp(data['timestamp']).strftime('%Y-%m-%d %H')
         weather_id = Weather.query.filter_by(city=data['city'], datetime=dt).first().id
