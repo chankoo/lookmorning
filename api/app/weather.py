@@ -16,12 +16,13 @@ def query_now(city, country):
         data = None
     finally:
         print("query_now res<{}>".format(res.status_code))
+        print(data)
     return data
 
 
 def query_5day(city, country):
     try:
-        URL = 'https://api.openweathermap.org/data/2.5/forecast?q={},{}&appid={}' # &mode=json&units=metric
+        URL = 'https://api.openweathermap.org/data/2.5/forecast?q={},{}&appid={}&units=metric'
         res = requests.get(URL.format(city, country, API_KEY))
         print(res)
         data = res.json()

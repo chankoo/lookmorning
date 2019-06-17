@@ -41,12 +41,4 @@ class LoginPage extends React.Component {
   }
 }
 
-// const withMiddleLoginPage = withMiddle(LoginPage, {
-//   styles: {
-//     backgroundImage: 'linear-gradient(180deg,#2b2f48,#1d1f31)',
-//     backgroundRepeat: 'no-repeat',
-//     backgroundPosition: 'center',
-//   },
-// })
-
 export default LoginPage 

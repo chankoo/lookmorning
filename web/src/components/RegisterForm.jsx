@@ -1,7 +1,8 @@
 import React from 'react'
-import { Form, Icon, Input, Button } from 'antd'
+import { Form, Icon, Input, Button, message } from 'antd'
 import { history } from './history'
 import { Link } from 'react-router-dom'
+import { logout } from "../authentication"
 import * as util from '../util'
 
 class RegisterForm extends React.Component {
@@ -12,6 +13,7 @@ class RegisterForm extends React.Component {
       confirmDirty: false,
     }
 
+    logout()
     this.name = null
     this.password = null
     this.passwordCheck = null
@@ -66,8 +68,8 @@ class RegisterForm extends React.Component {
                 fetch('http://0.0.0.0:8080/users', requestOptions)
                   .then(util.handleResponse)
                   .then(response => {
-                    // message.success(response.message)
-                    history.push('/login')
+                    message.success(response.message)
+                    history.push('/')
                   })
                   .catch(error => {
                     alert(error)
@@ -139,21 +141,6 @@ class RegisterForm extends React.Component {
             />
           )}
         </Form.Item>
-        {/* <Form.Item style={{ margin: "0 0 10px 0" }}>
-          {getFieldDecorator("secretKey", {
-            rules: [{ required: true, message: "Please input Secret Key!" }]
-          })(
-            <Input
-              name="secretKey"
-              prefix={<Icon type="lock" />}
-              type="password"
-              placeholder="Secret Key"
-              ref={node => {
-                this.secretKey = node.input
-              }}
-            />
-          )}
-        </Form.Item> */}
         <Form.Item style={{ margin: "0 0 12px 0" }}>
           <Button
             type="primary"

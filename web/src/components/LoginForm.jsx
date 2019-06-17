@@ -47,7 +47,7 @@ class LoginForm extends React.Component {
                       token: data.token,
                       refreshToken: data.refresh
                     })
-                    history.push('/main')
+                    history.push('/')
                   })
                   .catch(error => {
                     message.error(error);

@@ -1,8 +1,7 @@
 import React from 'react'
-// import { Button } from 'antd'
-// import { Link } from "react-router-dom"
 import * as util from '../util';
-
+import Weather from "./Weather";
+import { Button } from 'antd'
 
 class CurrentWeather extends React.Component {
   constructor(props){
@@ -12,7 +11,7 @@ class CurrentWeather extends React.Component {
   }
 
   componentDidMount = () => {
-    console.log('CurrentWeather componentDidMount:')
+    console.log('CurrentWeather getWeather:')
     
     const {city, country} = this.props
 
@@ -36,6 +35,7 @@ class CurrentWeather extends React.Component {
           'pressure': data['main']['pressure'],
           'wind_speed': data['wind']['speed'],
           'clouds': data['clouds']['all'],
+          'description': data['weather'][0]['description']
         })
         // if data has rain ~~~
       })
@@ -47,22 +47,32 @@ class CurrentWeather extends React.Component {
   }
 
     render() {
-      const {weather, temp, temp_min, temp_max, humidity, pressure, wind_speed, clouds } = this.state
+      const {weather, temp, temp_min, temp_max, humidity, pressure, wind_speed, clouds, description } = this.state
+      const { city, country} = this.props
       return (
         <React.Fragment>
-          <div >
-            <h1>Currunt Weather api</h1>
-            <div>
-            {weather}
-            {temp}
-            {temp_min}
-            {temp_max}
-            {humidity}
-            {pressure}
-            {wind_speed}
-            {clouds}
+            <div className="cw-wrapper">
+              <div className="cw-main">
+                <div className="cw-container">
+                  <div className="cw-row">
+                    <div className="cw-col-xs-5 title-container">
+                      <h1>Current Weather</h1>
+                    </div>
+                    <div className="cw-col-xs-7 form-container">
+                      <Weather 
+                        temperature={temp}
+                        temp_min={temp_min}
+                        temp_max={temp_max}
+                        humidity={humidity}
+                        city={city}
+                        country={country}
+                        description={description}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
         </React.Fragment>
       )
     }

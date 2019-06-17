@@ -175,7 +175,7 @@ class Dailys(Resource):
         random.shuffle(dailys)
         return json.dumps(dailys)
 
-    def post(self, user_id):  ## Image upload 후 진
+    def post(self, user_id):  ## do it after Image upload
         data = request.get_json()  # city, dt or timestamp , imgpath, satis
 
         ## daily record 생성 (id, weather_id, img_path, satis)
@@ -184,7 +184,12 @@ class Dailys(Resource):
         dt = data['dt']
         city = data['city']
 
-        weather_id = Weather.query.filter_by(city=city, datetime=dt).first().id
+        weather = Weather.query.filter_by(city=city, datetime=dt).first()
+        if weather:
+            weather_id = weather.id
+        else:
+            pass ## !!!!!
+
         new_daily = Daily(weather_id=weather_id, img_path=img_path, satis=satis)
         db.session.add(new_daily)
         db.session.commit()

@@ -1,7 +1,7 @@
 import React from 'react'
 import './Main.css'
 import Nav from './Nav'
-import { Button } from 'antd'
+import { Button, Select } from 'antd'
 import { Link } from "react-router-dom"
 import CurrentWeather from './CurrentWeather'
 import WeeklyWeather from './WeeklyWeather'
@@ -9,6 +9,8 @@ import MyDaily from './MyDaily'
 import MyScrap from './MyScrap'
 import OtherDaily from './OtherDaily'
 import {getUser} from '../authentication'
+
+const { Option } = Select;
 
 class MainPage extends React.Component {
   constructor(props){
@@ -21,29 +23,17 @@ class MainPage extends React.Component {
     }
   }
 
+  onSelectChange=(value)=>{this.setState({city:value})}
+
   render() {
     const {city, country, USER} = this.state
   
     return (
       <React.Fragment>
-        <Nav />
+        <Nav currentPath={this.props.location.pathname}/>
         <Link to="/upload">
-          <Button type="primary">Upload</Button>
+          <Button type="default" className="btn-upload" block>Upload</Button>
         </Link>
-
-        <section className="weather-wrapper">
-          {/* <section className="weather-container">
-            <CurrentWeather city={city} country={country}/>
-          </section> */}
-
-          {/* <div className="weather-container">
-            <HourlyWeather></HourlyWeather>
-          </div> */}
-
-          {/* <section className="weather-container">
-            <WeeklyWeather city={city} country={country}/>
-          </section> */}
-        </section>
 
         <section className='daily-wrapper'>
           <section className="myDaily-container">
@@ -53,14 +43,51 @@ class MainPage extends React.Component {
           <section className="myScrap-container">
             <MyScrap user_id={USER.id}></MyScrap>
           </section>
-
         </section>
 
-        <section className="more-daily-wrapper">
+        <section className="weather-wrapper">
+          <div className='city-selector'>
+                      <Select
+                          showSearch
+                          style={{ width: 200 }}
+                          placeholder="Seoul"
+                          optionFilterProp="children"
+                          onChange={this.onSelectChange}
+                          filterOption={
+                              (input, option) =>
+                              option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                          }
+                      >
+                          <Option value="Seoul">Seoul</Option>
+                      </Select>
+          </div>
+          {!USER&&
+          (<Link to="/login">
+              <Button type="primary" className='btn-login'>Login</Button>
+          </Link>)}
+
+          {USER&&
+          (<Link to="/login">
+              <Button type="primary" className='btn-login'>Logout</Button>
+          </Link>)}
+
+          <section className="weather-container">
+            <CurrentWeather city={city} country={country}/>
+            {USER&&
+                (<Button 
+                  type="primary" className='btn-looknow' block
+                  // onClick={}
+                >
+                  Look Now
+                </Button>)}
+          </section>
+        </section>
+
+        {/* <section className="more-daily-wrapper">
           <div className="otherDaily-container">
             <OtherDaily cluster={3} user_id={USER.id}></OtherDaily>
           </div>
-        </section>
+        </section> */}
 
       </React.Fragment>
     )
