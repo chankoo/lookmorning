@@ -87,7 +87,7 @@ class ImageUpload(Resource):
             # create filename accroding to userid, filename(raw), timestamp
             exifTS = ''
             fn = image.filename
-            # read_img = image.read()
+            read_img = image.read()
             i = Image.open(image.stream)
 
             # find taken time info from exif meta data
@@ -288,7 +288,6 @@ class UserLogin(Resource):
         jti = get_jti(refresh_token)
         _user['token'] = access_token
         _user['refresh'] = refresh_token
-        print(_user)
         login_session = LoginSession.query.filter_by(user_id=user.id).first()
 
         if login_session:

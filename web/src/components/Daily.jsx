@@ -40,8 +40,10 @@ class Daily extends React.Component {
         })
     }
 
+    shouldComponentUpdate(nextProps, nextState) {return true}
+
     render(){
-        const {daily_id, user_id, datetime, img_path, satis, creater_id} = this.props
+        const {daily_id, user_id, datetime, img_path, satis} = this.props
         const {is_scrap} = this.state
         const {handleScrap} = this
 
@@ -106,23 +108,3 @@ class Daily extends React.Component {
 }
 
 export default Daily;
-
-// ReactDOM.render(
-//   <Card
-//     style={{ width: 300 }}
-//     cover={
-//       <img
-//         alt="example"
-//         src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
-//       />
-//     }
-//     actions={[<Icon type="setting" />, <Icon type="edit" />, <Icon type="ellipsis" />]}
-//   >
-//     <Meta
-//       avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
-//       title="Card title"
-//       description="This is the description"
-//     />
-//   </Card>,
-//   mountNode,
-// );

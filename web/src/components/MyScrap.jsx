@@ -46,6 +46,8 @@ class MyScrap extends React.Component {
         })
     }
 
+    shouldComponentUpdate(nextProps, nextState) {return true}
+
     render(){
         const {dailys} = this.state
         const {user_id} = this.props

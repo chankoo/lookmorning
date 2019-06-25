@@ -1,25 +1,62 @@
 # Look Morning
 
-## 개요
+## Summary
 피부에 와닿지 않는 날씨예보
 
 이렇게 입으면 더울까? 추울까?
 
 아침마다 고민하는 오늘의 옷차림
 
-project Goal: 오늘 날씨에 적절한 daily look을 보여주어 오늘의 코디 고민을 덜어보자
+project Goal: 지금 날씨에 적절한 데일리룩을 보여주어 오늘의 코디 고민을 덜어보자
+
+
+## Architecture
+![lookmoring_arch](https://user-images.githubusercontent.com/38183218/60135539-e90c2f80-97dc-11e9-9764-5e2b742ba418.png)
 
 
 ## UI
-![](https://user-images.githubusercontent.com/38183218/58165288-674b5280-7cc2-11e9-9f08-e0d74a44ed68.png)
+> 현재 날씨
+> ![스크린샷, 2019-06-26 06-14-53](https://user-images.githubusercontent.com/38183218/60135047-d47b6780-97db-11e9-8b32-475f32b7c39a.png)
+
+> 유저 데일리룩 등록
+>![스크린샷, 2019-06-26 06-16-06](https://user-images.githubusercontent.com/38183218/60135048-d513fe00-97db-11e9-804d-1da1968e1675.png)
+
+> 유저 데일리룩 및 스크랩한 데일리룩
+> ![스크린샷, 2019-06-26 06-16-57](https://user-images.githubusercontent.com/38183218/60135049-d513fe00-97db-11e9-98f5-834eb87cd532.png)
+
+> 현재 날씨에 맞는 데일리룩 노출
+> ![스크린샷, 2019-06-26 06-50-19](https://user-images.githubusercontent.com/38183218/60136286-b9f6bd80-97de-11e9-994c-6362ad4ef33d.png)
 
 
-## DB
-![스크린샷, 2019-06-25 23-18-25](https://user-images.githubusercontent.com/38183218/60106182-b6901180-979f-11e9-9b0d-029ebc2dcbce.png)
+## 환경 설정 및 빌드
+
+#### npm 설치
+
+```bash
+curl -sL https://deb.nodesource.com/setup_10.x | sudo bash -
+sudo apt-get install -y nodejs
+sudo npm cache clean -f
+sudo npm install -g n
+sudo n stable
+
+```
+
+#### 빌드
+```bash
+git clone https://github.com/chankoo/lookmorning.git
+
+cd ./lookmorning/web
+sudo npm install production
+sudo npm install react-router-dom
+sudo npm run build
+sudo npm install -g serve
+sudo serve -s build
+
+```
 
 
 ## 활용 API
 
 - [OpenWeatherMap](https://openweathermap.org/api)
-- [기상자료개방포](https://data.kma.go.kr/data/grnd/selectAsosRltmList.do?pgmNo=36)
-털
+- [기상자료개방포털](https://data.kma.go.kr/data/grnd/selectAsosRltmList.do?pgmNo=36)
+- [rarcega/instagram-scraper](https://github.com/rarcega/instagram-scraper)
