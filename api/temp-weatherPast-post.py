@@ -5,7 +5,7 @@ if __name__ == '__main__':
     import requests
 
 
-    data = pd.read_csv('temp_weatherCluster.csv')
+    data = pd.read_csv('weather_cluster.csv')
     headers = {'Content-Type':'application/json; charset=utf-8'}
     url = 'http://0.0.0.0:8080/weather/past'
 
@@ -16,7 +16,5 @@ if __name__ == '__main__':
                 "cluster": str(data.cluster.at[i]),
                 "is_rain": str(data.is_rain.at[i])
                 })
-        # print(post)
         res = requests.post(url, headers=headers, data=post)
-        # print(res)
 

@@ -4,7 +4,7 @@ mysql_config = {
 	'host': os.environ.get('MYSQL_HOST', '127.0.0.1'),
 	'user': os.environ.get('MYSQL_USER', 'root'),
 	'pass': os.environ.get('MYSQL_PASS', '1234'),
-	'db':   os.environ.get('MYSQL_DB', 'test'),
+	'db':   os.environ.get('MYSQL_DB', 'lookmorning'),
 }
 
 def alchemy_uri():

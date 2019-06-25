@@ -75,19 +75,19 @@ class WeatherPast(Resource):
         return serializer([weather])
 
     def post(self):
-        data = request.get_json()  # city, datetime, cluster
-        new_weather = Weather(city=data['city'], datetime=data['datetime'], cluster=data['cluster'])
+        data = request.get_json()  # city, datetime, cluster, is_rain
+        new_weather = Weather(city=data['city'], datetime=data['datetime'], cluster=data['cluster'], is_rain=int(data['is_rain']))
         db.session.add(new_weather)
         db.session.commit()
         return serializer([new_weather])
         
 
 class ImageUpload(Resource):
-    #---temp----------
-    def get(self):
-        headers = {'Content-Type': 'text/html'}
-        return make_response(render_template("upload_image_temp.html"), 200, headers)
-    #--------------
+    # #---temp----------
+    # def get(self):
+    #     headers = {'Content-Type': 'text/html'}
+    #     return make_response(render_template("upload_image_temp.html"), 200, headers)
+    # #--------------
 
     def post(self, user_id):  # s3에 post 후 db add 위해 필요한 정보 리턴
         if request.files:
@@ -175,40 +175,45 @@ class Dailys(Resource):
         random.shuffle(dailys)
         return json.dumps(dailys)
 
-    def post(self, user_id):  ## do it after Image upload
+    def post(self):  ## user_id 다시 넣자
         data = request.get_json()  # city, dt or timestamp , imgpath, satis
 
-        ## daily record 생성 (id, weather_id, img_path, satis)
-        img_path = 'https://project-lookmorning.s3.ap-northeast-2.amazonaws.com/dailylook/{}'.format(data['file_name'])
-        satis = data['satis']
-        dt = data['dt']
-        city = data['city']
-
-        weather = Weather.query.filter_by(city=city, datetime=dt).first()
-        if weather:
-            weather_id = weather.id
-        else:
-            pass ## !!!!!
-
-        new_daily = Daily(weather_id=weather_id, img_path=img_path, satis=satis)
-        db.session.add(new_daily)
-        db.session.commit()
-
-        ## mydaily record 생성 (id, user_id, daily_id)
-        daily_id = Daily.query.filter_by(img_path=img_path).first().id
-        new_myDaily = MyDaily(user_id, daily_id)
-        db.session.add(new_myDaily)
-
-        db.session.commit()
-
-
         ### 기존 인스타 이미지 db 저장(passed with imgpath)
-        # dt = datetime.datetime.fromtimestamp(data['timestamp']).strftime('%Y-%m-%d %H')
-        # weather_id = Weather.query.filter_by(city=data['city'], datetime=dt).first().id
-        # new_daily = Daily(weather_id=weather_id, img_path=data['img_path'], satis=data['satis'])
-        # db.session.add(new_daily)
-        # db.session.commit()행
+        try:
+            dt = datetime.datetime.fromtimestamp(data['timestamp']).strftime('%Y-%m-%d %H')
+            weather_id = Weather.query.filter_by(city=data['city'], datetime=dt).first().id
+            new_daily = Daily(weather_id=weather_id, img_path=data['img_path'], satis=data['satis'])
+            db.session.add(new_daily)
+            db.session.commit()
+        except Exception as e:
+            print('err')
+            pass
+        ###
 
+
+
+        # ## daily record 생성 (id, weather_id, img_path, satis)
+        # img_path = 'https://project-lookmorning.s3.ap-northeast-2.amazonaws.com/dailylook/{}'.format(data['file_name'])
+        # satis = data['satis']
+        # dt = data['dt']
+        # city = data['city']
+        #
+        # weather = Weather.query.filter_by(city=city, datetime=dt).first()
+        # print(weather)
+        # if weather:
+        #     weather_id = weather.id
+        # else:
+        #     pass ## !!!!!
+        #
+        # new_daily = Daily(weather_id=weather_id, img_path=img_path, satis=satis)
+        # db.session.add(new_daily)
+        # db.session.commit()
+        #
+        # ## mydaily record 생성 (id, user_id, daily_id)
+        # daily_id = Daily.query.filter_by(img_path=img_path).first().id
+        # new_myDaily = MyDaily(user_id, daily_id)
+        # db.session.add(new_myDaily)
+        # db.session.commit()
 
         return jsonify({'message': "MyDaily uploaded"})
 
@@ -331,11 +336,9 @@ class UserLogin(Resource):
         return json.dumps({'message': 'login successfully', 'data': _user})
 
 
-# class Cluster(Resource):
-#     def get(self):
-#
-#
-#
-#         Weather.query.filter_by(cluster=cluster
-#                                 # , is_rain=is_rain
-#                                 )
+class Cluster(Resource):
+    def get(self):
+
+
+
+        Weather.query.filter_by(cluster=cluster, is_rain=is_rain)

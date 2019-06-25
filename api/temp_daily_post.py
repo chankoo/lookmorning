@@ -5,7 +5,7 @@ if __name__ == '__main__':
 
     ###
     direc = 'dailylook'
-    os.chdir('./static/{}'.format(direc))
+    os.chdir('./static')
     ###
 
 
@@ -27,6 +27,7 @@ if __name__ == '__main__':
                 .format(direc, meta['shortcode'], meta['taken_at_timestamp'], loc),
             "satis": None,
         })
+
 
         res = requests.post(url, headers=headers, data=post)
         if res.status_code >200:

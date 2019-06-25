@@ -13,8 +13,8 @@ def query_now(city, country):
     except Exception as e:
         print(e)
         data = None
-    finally:
-        print(data)
+    # finally:
+    #     print(data)
     return data
 
 

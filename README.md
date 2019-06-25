@@ -15,9 +15,11 @@ project Goal: 오늘 날씨에 적절한 daily look을 보여주어 오늘의 �
 
 
 ## DB
-![스크린샷, 2019-05-22 20-29-51](https://user-images.githubusercontent.com/38183218/58171206-67eae580-7cd0-11e9-9805-f2c85e7029f4.png)
+![스크린샷, 2019-06-25 23-18-25](https://user-images.githubusercontent.com/38183218/60106182-b6901180-979f-11e9-9b0d-029ebc2dcbce.png)
 
 
 ## 활용 API
 
 - [OpenWeatherMap](https://openweathermap.org/api)
+- [기상자료개방포](https://data.kma.go.kr/data/grnd/selectAsosRltmList.do?pgmNo=36)
+털
