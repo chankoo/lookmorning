@@ -13,7 +13,8 @@ if __name__ == '__main__':
         post = json.dumps({
                 "city": "Seoul",
                 "datetime": data.datetime.at[i],
-                "cluster": str(data.cluster.at[i])
+                "cluster": str(data.cluster.at[i]),
+                "is_rain": str(data.is_rain.at[i])
                 })
         # print(post)
         res = requests.post(url, headers=headers, data=post)

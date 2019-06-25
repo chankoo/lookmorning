@@ -144,7 +144,7 @@ class ImageUpload(Resource):
 
 
 class Dailys(Resource):
-    def get(self, user_id, cluster):
+    def get(self, user_id, cluster, is_rain):
         # # query by daily id
         # if 'id' in args:
         #     daily = Daily.query.filter_by(id=args['id']).first()
@@ -160,7 +160,7 @@ class Dailys(Resource):
             except_daily_ids.append(myscrap.daily_id)
 
         # query by weather cluster
-        weathers = Weather.query.filter_by(cluster=cluster).all()  # 현재 날씨와 같은 클러스터의 날씨들을 쿼리
+        weathers = Weather.query.filter_by(cluster=cluster, is_rain=is_rain).all()  # 현재 날씨와 같은 클러스터의 날씨들을 쿼리
         dailys = []
         for weather in weathers:
             weather_dailys = Daily.query.filter_by(weather_id=weather.id).all()  # 해당 날씨에 촬영된 데일리룩 쿼리
@@ -331,27 +331,11 @@ class UserLogin(Resource):
         return json.dumps({'message': 'login successfully', 'data': _user})
 
 
-
-
-
-# def token_required(f):
-#     @wraps(f)
-#     def decorated(*args, **kwargs):
-#         token = None
+# class Cluster(Resource):
+#     def get(self):
 #
-#         # request header에 토큰이 있으면 진행
-#         if 'Authorization' in request.headers:
-#             token = request.headers['Authorization']
 #
-#         if not token:
-#             print('if not token')
-#             return make_response('{"msg":"Token is missing"}', 401)
 #
-#         try:
-#             data = jwt.decode(token, 'chankoo')  # decoded with secret key
-#         except:
-#             return make_response('{"msg":"Token is invalid"}', 401)
-#
-#         return f(*args, **kwargs)  # user 오브젝트를 route에 넘겨주기위해 return
-#
-#     return decorated
+#         Weather.query.filter_by(cluster=cluster
+#                                 # , is_rain=is_rain
+#                                 )

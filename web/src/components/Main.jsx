@@ -9,6 +9,7 @@ import MyDaily from './MyDaily'
 import MyScrap from './MyScrap'
 import OtherDaily from './OtherDaily'
 import {getUser} from '../authentication'
+import * as util from '../util';
 
 const { Option } = Select;
 
@@ -19,14 +20,47 @@ class MainPage extends React.Component {
       'city': 'Seoul',
       'country': 'KR',
       'timestamp': Date.now(),
-      'USER': getUser()
+      'USER': getUser(),
+      'lookNow': false,
+      'dailys': []
     }
   }
 
   onSelectChange=(value)=>{this.setState({city:value})}
 
+  // looknow 눌렀을때 fetch cluster 
+  onClickLookNow=(cluster)=>{
+    const {USER} = this.state
+
+    const base = "http://0.0.0.0:8080/daily"
+        const url = base + '/' + USER.id + '/' + cluster
+        fetch(url, {
+        method: 'GET',
+        headers: { 
+            'Content-Type': 'application/json', 
+        }
+        })
+        .then(util.handleResponse)
+        .then(response => {
+            const data = JSON.parse(response)
+            this.setState({
+                'dailys': data
+            })
+        })
+        .catch(e=>{
+            alert(e)
+            console.log(e)
+        })
+
+        this.setState({
+          'lookNow': true,
+          // 'cluster': cluster
+        })
+
+  }
+
   render() {
-    const {city, country, USER} = this.state
+    const {city, country, USER, lookNow} = this.state
   
     return (
       <React.Fragment>
@@ -72,22 +106,16 @@ class MainPage extends React.Component {
           </Link>)}
 
           <section className="weather-container">
-            <CurrentWeather city={city} country={country}/>
-            {USER&&
-                (<Button 
-                  type="primary" className='btn-looknow' block
-                  // onClick={}
-                >
-                  Look Now
-                </Button>)}
+            <CurrentWeather city={city} country={country} USER={USER} onClickLookNow={this.onClickLookNow}/>
           </section>
         </section>
 
-        {/* <section className="more-daily-wrapper">
+        {lookNow&&
+        (<section className="more-daily-wrapper">
           <div className="otherDaily-container">
-            <OtherDaily cluster={3} user_id={USER.id}></OtherDaily>
+            <OtherDaily cluster={this.state.cluster} user_id={USER.id}></OtherDaily>
           </div>
-        </section> */}
+        </section>)}
 
       </React.Fragment>
     )

@@ -64,18 +64,21 @@ class Weather(db.Model):
     city = db.Column(db.String)
     datetime = db.Column(db.String)
     cluster = db.Column(db.Integer)
+    is_rain = db.Column(db.Boolean)
 
-    def __init__(self, city, datetime, cluster):
+    def __init__(self, city, datetime, cluster, is_rain):
         self.city = city
         self.cluster = cluster
         self.datetime = datetime
+        self.is_rain = is_rain
 
     def serialize(self):
         return json.dumps({
             'id': self.id,
             'city': self.city,
             'datetime': self.datetime,
-            'cluster': self.cluster
+            'cluster': self.cluster,
+            'is_rain': self.is_rain
         })
 
 

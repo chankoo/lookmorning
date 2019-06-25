@@ -2,6 +2,7 @@ import React from 'react'
 import * as util from '../util';
 import Weather from "./Weather";
 import { Button } from 'antd'
+import { Server } from 'tls';
 
 class CurrentWeather extends React.Component {
   constructor(props){
@@ -28,6 +29,8 @@ class CurrentWeather extends React.Component {
         const data = JSON.parse(response)
         this.setState({
           'weather': data['weather'][0]['main'],
+          'description': data['weather'][0]['description'],
+          'img_src': 'http://openweathermap.org/img/w/'+data['weather'][0]['icon']+'.png',
           'temp': data['main']['temp'],
           'temp_min': data['main']['temp_min'],
           'temp_max': data['main']['temp_max'],
@@ -35,20 +38,29 @@ class CurrentWeather extends React.Component {
           'pressure': data['main']['pressure'],
           'wind_speed': data['wind']['speed'],
           'clouds': data['clouds']['all'],
-          'description': data['weather'][0]['description']
         })
-        // if data has rain ~~~
+        // if data has rain ~~~ 
+      //   "rain": {
+      //     "3h": 0.185
+      // },
       })
       .catch(e=>{
         alert(e)
         console.log(e)
       })
-      
+  }
+
+  handleLookNow=()=>{
+    const {onClickLookNow} = this.props
+    // weather to s3 & fetch cluster
+    // cluster to Server( from main to server)
+      // onClickLookNow(cluster)
+    // fetch other daily
   }
 
     render() {
-      const {weather, temp, temp_min, temp_max, humidity, pressure, wind_speed, clouds, description } = this.state
-      const { city, country} = this.props
+      const {weather, temp, temp_min, temp_max, humidity, pressure, wind_speed, clouds, description, img_src } = this.state
+      const { city, country, USER} = this.props
       return (
         <React.Fragment>
             <div className="cw-wrapper">
@@ -59,6 +71,10 @@ class CurrentWeather extends React.Component {
                       <h1>Current Weather</h1>
                     </div>
                     <div className="cw-col-xs-7 form-container">
+                    <img 
+                      src={img_src}
+                      alt="icon"
+                      />
                       <Weather 
                         temperature={temp}
                         temp_min={temp_min}
@@ -70,6 +86,13 @@ class CurrentWeather extends React.Component {
                       />
                     </div>
                   </div>
+                  {USER&&
+                    (<Button 
+                      type="primary" className='btn-looknow' block
+                      // onClick={this.handleLookNow}
+                    >
+                      Look Now
+                    </Button>)}
                 </div>
               </div>
             </div>
