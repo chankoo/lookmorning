@@ -14,7 +14,7 @@ class MyDaily extends React.Component {
     componentDidMount=()=>{
         console.log('MyDaily componentDidMount')
         const {user_id} = this.props
-        const base = "http://0.0.0.0:8080/user/"
+        const base = "http://54.180.147.246:8080/user/"
         const url = base + user_id + '/mydaily'
         const AToken = getAToken()
         const RToken = getRToken()

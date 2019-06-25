@@ -31,7 +31,7 @@ class Daily extends React.Component {
                 daily_id: daily_id,
             })
         }
-        const base = 'http://0.0.0.0:8080/user/'
+        const base = 'http://54.180.147.246:8080/user/'
         fetch(base+user_id+'/myscrap', requestOptions)
         .then(util.handleResponse)
         .then(response => {

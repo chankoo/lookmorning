@@ -1,10 +1,9 @@
 import React from 'react'
 import './Main.css'
 import Nav from './Nav'
-import { Button, Select } from 'antd'
+import { Button, Select, message } from 'antd'
 import { Link } from "react-router-dom"
 import CurrentWeather from './CurrentWeather'
-import WeeklyWeather from './WeeklyWeather'
 import MyDaily from './MyDaily'
 import MyScrap from './MyScrap'
 import OtherDaily from './OtherDaily'
@@ -28,12 +27,11 @@ class MainPage extends React.Component {
 
   onSelectChange=(value)=>{this.setState({city:value})}
 
-  // looknow 눌렀을때 fetch cluster 
-  onClickLookNow=(cluster)=>{
+  onClickLookNow=(cluster, is_rain)=>{
+    console.log("onClickLookNow")
     const {USER} = this.state
-
-    const base = "http://0.0.0.0:8080/daily"
-        const url = base + '/' + USER.id + '/' + cluster
+    const base = "http://54.180.147.246:8080/daily"
+        const url = base + '/' + USER.id + '/' + cluster + '/' + is_rain
         fetch(url, {
         method: 'GET',
         headers: { 
@@ -44,19 +42,13 @@ class MainPage extends React.Component {
         .then(response => {
             const data = JSON.parse(response)
             this.setState({
-                'dailys': data
+                'dailys': data,
+                'lookNow': true,
             })
         })
-        .catch(e=>{
-            alert(e)
-            console.log(e)
+        .catch(error=>{
+            message.error(error)
         })
-
-        this.setState({
-          'lookNow': true,
-          // 'cluster': cluster
-        })
-
   }
 
   render() {

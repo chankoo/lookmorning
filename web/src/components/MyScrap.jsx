@@ -15,7 +15,7 @@ class MyScrap extends React.Component {
     componentDidMount=()=>{
         console.log('MyScrap componentDidMount')
         const {user_id} = this.props
-        const base = "http://0.0.0.0:8080/user/"
+        const base = "http://54.180.147.246:8080/user/"
         const url = base + user_id + '/myscrap'
         const AToken = getAToken()
         const RToken = getRToken()

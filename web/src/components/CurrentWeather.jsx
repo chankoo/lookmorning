@@ -1,8 +1,7 @@
 import React from 'react'
 import * as util from '../util';
 import Weather from "./Weather";
-import { Button } from 'antd'
-import { Server } from 'tls';
+import { Button, message } from 'antd'
 
 class CurrentWeather extends React.Component {
   constructor(props){
@@ -12,11 +11,10 @@ class CurrentWeather extends React.Component {
   }
 
   componentDidMount = () => {
-    console.log('CurrentWeather getWeather:')
+    console.log('get CurrentWeather:')
     
     const {city, country} = this.props
-
-    const base = "http://0.0.0.0:8080/weather/now"
+    const base = "http://54.180.147.246:8080/weather/now"
     const url = base+'?'+'city=' + city + '&' + 'country=' + country + 'units=metric'
     fetch(url, {
       method: 'GET',
@@ -38,11 +36,13 @@ class CurrentWeather extends React.Component {
           'pressure': data['main']['pressure'],
           'wind_speed': data['wind']['speed'],
           'clouds': data['clouds']['all'],
+          'precipitation': 0
         })
-        // if data has rain ~~~ 
-      //   "rain": {
-      //     "3h": 0.185
-      // },
+        if(data['rain']){
+          this.setState({
+            'precipitation': data['rain']['1h']
+          })
+        }
       })
       .catch(e=>{
         alert(e)
@@ -51,11 +51,36 @@ class CurrentWeather extends React.Component {
   }
 
   handleLookNow=()=>{
+    // fetch cluster when looknow clicked
+    console.log('handleLookNow')
+    const {temp, wind_speed, humidity, clouds, precipitation} = this.state
     const {onClickLookNow} = this.props
-    // weather to s3 & fetch cluster
-    // cluster to Server( from main to server)
-      // onClickLookNow(cluster)
-    // fetch other daily
+    
+    // weather to server & fetch cluster
+    const base = "http://54.180.147.246:8080/weather/cluster"
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        temp: temp,
+        wind_speed: wind_speed,
+        humidity: humidity,
+        clouds: clouds,
+        precipitation: precipitation,
+      })
+    }
+    fetch(base, requestOptions)
+    .then(util.handleResponse)
+    .then(response => {
+      response = JSON.parse(response)
+      const { cluster, is_rain } = response.data
+      onClickLookNow(cluster, is_rain) // cluster, is_rain to Server( from main to server)
+    })
+    .catch(error => {
+      message.error(error)
+    })
   }
 
     render() {

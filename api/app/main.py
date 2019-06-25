@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
-import os
+
 from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
+import os
+from datetime import timedelta
+
 # from models import db
-from api import WeatherNow, Weather5day, Users, ImageUpload, WeatherPast, Dailys, MyScraps, MyDailys, UserLogin
+from api import WeatherNow, Weather5day, Users, ImageUpload, WeatherPast, Dailys, MyScraps, MyDailys, UserLogin, Cluster
 from config import alchemy_uri
 
-from flask_sqlalchemy import SQLAlchemy
 
-from flask_jwt_extended import JWTManager
-from datetime import timedelta
 
 ####
 # import boto3
@@ -62,14 +64,16 @@ api.add_resource(Weather5day, '/weather/weekly')
 api.add_resource(WeatherPast, '/weather/past')
 api.add_resource(MyScraps, '/user/<int:user_id>/myscrap')
 api.add_resource(MyDailys, '/user/<int:user_id>/mydaily')
+api.add_resource(ImageUpload, '/daily/<int:user_id>/image-upload')
 
 api.add_resource(Dailys,
-                 '/daily',
-                 # '/daily/<int:user_id>/<int:cluster>/<int:is_rain>',
-                 # '/daily/<int:user_id>'
+                 # '/daily',
+                 '/daily/<int:user_id>/<int:cluster>/<int:is_rain>',
+                 '/daily/<int:user_id>'
                  )
+api.add_resource(Cluster, '/weather/cluster')
 
-api.add_resource(ImageUpload, '/daily/<int:user_id>/image-upload')
+
 
 
 @app.route('/', methods=['GET'])

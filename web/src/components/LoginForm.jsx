@@ -36,7 +36,7 @@ class LoginForm extends React.Component {
                     password: password
                   })
                 }
-                fetch('http://0.0.0.0:8080/user/login', requestOptions)
+                fetch('http://54.180.147.246:8080/user/login', requestOptions)
                   .then(util.handleResponse)
                   .then(response => {
                     response = JSON.parse(response)

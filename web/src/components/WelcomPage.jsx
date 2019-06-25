@@ -6,7 +6,6 @@ import { Link } from "react-router-dom"
 import CurrentWeather from './CurrentWeather'
 import WeeklyWeather from './WeeklyWeather'
 import {getUser} from '../authentication'
-// import './WelcomePage.css'
 
 const { Option } = Select;
 

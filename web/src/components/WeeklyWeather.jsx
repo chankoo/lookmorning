@@ -1,11 +1,6 @@
 import React from 'react'
-// import { Button } from 'antd'
-// import { Link } from "react-router-dom"
 import * as util from '../util';
-import Weather from "./Weather";
-// import WeatherSimple from './WeatherSimple'
-
-import { Table, Divider, Tag } from 'antd';
+import { Table } from 'antd';
 
 class WeeklyWeather extends React.Component {
   constructor(props){
@@ -20,7 +15,7 @@ class WeeklyWeather extends React.Component {
     
     const {city, country} = this.props
 
-    const base = "http://0.0.0.0:8080/weather/weekly"
+    const base = "http://54.180.147.246:8080/weather/weekly"
     const url = base+'?'+'city=' + city + '&' + 'country=' + country + 'units=metric'
     fetch(url, {
       method: 'GET',
@@ -34,24 +29,18 @@ class WeeklyWeather extends React.Component {
         let newWeekly = []
         for (const weather of data['list']){
             const addWeather = {
-                // 'timestamp': weather['dt'],
                 'dt_txt':weather['dt_txt'],
                 'weather':weather['weather'][0]['main'],
-                // 'description':weather['weather'][0]['description'],
                 'temp':weather['main']['temp'],
-                // 'temp_min':weather['main']['temp_min'],
-                // 'temp_max':weather['main']['temp_max'],
                 'humidity':weather['main']['humidity'],
-                // 'pressure':weather['main']['pressure'],
-                // 'wind_speed':weather['wind']['spped'],
                 'clouds':weather['clouds']['all'],
+                'key':weather['dt']
             }
             newWeekly = newWeekly.concat(addWeather)
         }
         this.setState({
             'weekly': newWeekly
         })
-        // if data has rain ~~~
       })
       .catch(e=>{
         alert(e)

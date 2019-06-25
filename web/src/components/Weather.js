@@ -9,7 +9,7 @@ const Weather = props => (
         }
         { 	
         props.temperature && <p className="weather__key"> Temperature: 
-            <span className="weather__value"> { props.temperature } ({props.temp_min} ~ {props.temp_max})	</span>
+            <span className="weather__value"> { props.temperature } </span>
         </p> 
         }
         { 	
@@ -26,6 +26,6 @@ const Weather = props => (
         props.error && <p className="weather__error">{ props.error }</p>  
         }
     </div>
-);
+)
 
 export default Weather;

@@ -15,25 +15,25 @@ class OtherDaily extends React.Component {
         console.log('OtherDaily componentDidMount')
         const {cluster, user_id} = this.props
         
-        const base = "http://0.0.0.0:8080/daily/"
-        const url = base + user_id + '/' + cluster
-        fetch(url, {
-        method: 'GET',
-        headers: { 
-            'Content-Type': 'application/json', 
-        }
-        })
-        .then(util.handleResponse)
-        .then(response => {
-            const data = JSON.parse(response)
-            this.setState({
-                'dailys': data
-            })
-        })
-        .catch(e=>{
-            alert(e)
-            console.log(e)
-        })
+        // const base = "http://54.180.147.246:8080/daily"
+        // const url = base + '/' + user_id + '/' + cluster
+        // fetch(url, {
+        // method: 'GET',
+        // headers: { 
+        //     'Content-Type': 'application/json', 
+        // }
+        // })
+        // .then(util.handleResponse)
+        // .then(response => {
+        //     const data = JSON.parse(response)
+        //     this.setState({
+        //         'dailys': data
+        //     })
+        // })
+        // .catch(e=>{
+        //     alert(e)
+        //     console.log(e)
+        // })
     }
 
     handleDailysUpdate=(daily_id)=>{

@@ -1,24 +1,18 @@
 from flask import request, make_response, render_template, redirect, abort, jsonify
 from flask_restful import Resource
-from models import db, User, Daily, Weather, MyScrap, MyDaily, LoginSession
-from utils import serializer, dictionalizer
-import datetime
-from weather import query_now, query_5day
-import boto3
-import json
-import random
-
-import os
-from werkzeug.utils import secure_filename
-
-from PIL import Image
-from PIL.ExifTags import TAGS
-
 from flask_jwt_extended import (
     JWTManager, create_access_token, create_refresh_token,
     jwt_required, jwt_refresh_token_required, get_jwt_identity,
     get_jti, get_raw_jwt)
-
+from werkzeug.utils import secure_filename
+import boto3
+import pandas as pd
+import datetime, json, random, pickle
+from PIL import Image
+from PIL.ExifTags import TAGS
+from models import db, User, Daily, Weather, MyScrap, MyDaily, LoginSession
+from weather import query_now, query_5day
+from utils import serializer, dictionalizer
 
 
 class Users(Resource):
@@ -83,26 +77,20 @@ class WeatherPast(Resource):
         
 
 class ImageUpload(Resource):
-    # #---temp----------
-    # def get(self):
-    #     headers = {'Content-Type': 'text/html'}
-    #     return make_response(render_template("upload_image_temp.html"), 200, headers)
-    # #--------------
-
-    def post(self, user_id):  # s3에 post 후 db add 위해 필요한 정보 리턴
+    def post(self, user_id):  # post img to s3 and return info to insert db
         if request.files:
             image = request.files['image']  # <class 'werkzeug.datastructures.FileStorage'>
 
             if image.filename == '':
-                print("Image doesnt exist!!")
                 return redirect(request.url)
 
-            ## userid, 파일이름, timestamp 받아서 파일이름 생성
+            # create filename accroding to userid, filename(raw), timestamp
             exifTS = ''
             fn = image.filename
             read_img = image.read()
             i = Image.open(image.stream)
 
+            # find taken time info from exif meta data
             try:
                 info = i._getexif()
                 for tag, value in info.items():
@@ -120,20 +108,16 @@ class ImageUpload(Resource):
                 print(e)
                 pass
 
-            print('exifTS', exifTS)
             if exifTS != '':
                 dt = datetime.datetime.strptime(exifTS, '%Y:%m:%d %H:%M:%S').strftime('%Y-%m-%d %H')
-
             else:
-                dt = datetime.datetime.now().strftime('%Y-%m-%d %H')  # 촬영시간 없는 경우 현재시간을 dt로 사용
+                dt = datetime.datetime.now().strftime('%Y-%m-%d %H')  # dt as current time if not exist taken time
 
             file_name = secure_filename('_'.join([str(user_id), dt.split()[0], fn]))
 
-            #s3 업로드
+            # upload to s3
             s3 = boto3.resource('s3')
             s3.Bucket('project-lookmorning').put_object(Key='dailylook/'+file_name, Body=read_img, ContentType='image/jpeg', ACL='public-read')
-
-
             return jsonify({
                 'message': "Image {} Uploaded to S3".format(file_name),
                 'filename': file_name,
@@ -145,11 +129,6 @@ class ImageUpload(Resource):
 
 class Dailys(Resource):
     def get(self, user_id, cluster, is_rain):
-        # # query by daily id
-        # if 'id' in args:
-        #     daily = Daily.query.filter_by(id=args['id']).first()
-        #     return serializer([daily])
-
         # dailys user created or scrapped must be excepted
         except_daily_ids = []
         mydailys = MyDaily.query.filter_by(user_id=user_id).all()
@@ -170,50 +149,47 @@ class Dailys(Resource):
                 weather_daily['datetime'] = weather_dt
                 if weather_daily['id'] in except_daily_ids:
                     continue
-                dailys += [weather_daily]  # datetime이 추가된 weather_daily를 이어 붙인다
+                dailys += [weather_daily]  # concat weather_daily in which datetime added
 
         random.shuffle(dailys)
         return json.dumps(dailys)
 
-    def post(self):  ## user_id 다시 넣자
-        data = request.get_json()  # city, dt or timestamp , imgpath, satis
+    def post(self, user_id):
+        data = request.get_json()
 
-        ### 기존 인스타 이미지 db 저장(passed with imgpath)
-        try:
-            dt = datetime.datetime.fromtimestamp(data['timestamp']).strftime('%Y-%m-%d %H')
-            weather_id = Weather.query.filter_by(city=data['city'], datetime=dt).first().id
-            new_daily = Daily(weather_id=weather_id, img_path=data['img_path'], satis=data['satis'])
-            db.session.add(new_daily)
-            db.session.commit()
-        except Exception as e:
-            print('err')
-            pass
-        ###
+        # create daily record (id, weather_id, img_path, satis)
+        img_path = 'https://project-lookmorning.s3.ap-northeast-2.amazonaws.com/dailylook/{}'.format(data['file_name'])
+        satis = data['satis']
+        dt = data['dt']
+        city = data['city']
 
+        weather = Weather.query.filter_by(city=city, datetime=dt).first()
+        print(weather)
+        if weather:
+            weather_id = weather.id
+        else:
+            pass ## !!!!!
 
+        new_daily = Daily(weather_id=weather_id, img_path=img_path, satis=satis)
+        db.session.add(new_daily)
+        db.session.commit()
 
-        # ## daily record 생성 (id, weather_id, img_path, satis)
-        # img_path = 'https://project-lookmorning.s3.ap-northeast-2.amazonaws.com/dailylook/{}'.format(data['file_name'])
-        # satis = data['satis']
-        # dt = data['dt']
-        # city = data['city']
-        #
-        # weather = Weather.query.filter_by(city=city, datetime=dt).first()
-        # print(weather)
-        # if weather:
-        #     weather_id = weather.id
-        # else:
-        #     pass ## !!!!!
-        #
-        # new_daily = Daily(weather_id=weather_id, img_path=img_path, satis=satis)
-        # db.session.add(new_daily)
-        # db.session.commit()
-        #
-        # ## mydaily record 생성 (id, user_id, daily_id)
-        # daily_id = Daily.query.filter_by(img_path=img_path).first().id
-        # new_myDaily = MyDaily(user_id, daily_id)
-        # db.session.add(new_myDaily)
-        # db.session.commit()
+        # create mydaily record (id, user_id, daily_id)
+        daily_id = Daily.query.filter_by(img_path=img_path).first().id
+        new_myDaily = MyDaily(user_id, daily_id)
+        db.session.add(new_myDaily)
+        db.session.commit()
+
+        # insert dummy images to db
+        # try:
+        #     dt = datetime.datetime.fromtimestamp(data['timestamp']).strftime('%Y-%m-%d %H')
+        #     weather_id = Weather.query.filter_by(city=data['city'], datetime=dt).first().id
+        #     new_daily = Daily(weather_id=weather_id, img_path=data['img_path'], satis=data['satis'])
+        #     db.session.add(new_daily)
+        #     db.session.commit()
+        # except Exception as e:
+        #     print('err')
+        #     pass
 
         return jsonify({'message': "MyDaily uploaded"})
 
@@ -337,8 +313,37 @@ class UserLogin(Resource):
 
 
 class Cluster(Resource):
-    def get(self):
+    def post(self):  # assign cluster and return it
+        data = request.get_json()
+
+        if data['precipitation'] is not '0':
+            is_rain = 1
+            with open('../static/model_km1.pkl', 'rb') as fp:
+                km = pickle.load(fp)
+            with open('../static/stat_km1.pkl', 'rb') as fp:
+                stat = pickle.load(fp)
+
+        else:
+            is_rain = 0
+            with open('../static/model_km0.pkl', 'rb') as fp:
+                km = pickle.load(fp)
+            with open('../static/stat_km0.pkl', 'rb') as fp:
+                stat = pickle.load(fp)
+
+        # standard scale with raw data statistic
+        df = pd.DataFrame.from_dict(data)
+        weather = [data['temp'], ]
+        for col in df.colums:
+            if col in stat.index:
+                weather.append((df['col'] - stat.loc[col, 'mean']) / stat.loc[col, 'std'])
 
 
+        cluster = km.predict(pd.np.array([weather]))[0]
 
-        Weather.query.filter_by(cluster=cluster, is_rain=is_rain)
+        return jsonify({
+            "message": "cluster assigned",
+            "data": {
+                "cluster": cluster,
+                "is_rain": is_rain
+            }
+        })

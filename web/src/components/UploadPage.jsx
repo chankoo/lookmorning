@@ -1,19 +1,18 @@
 import React from 'react'
-import { Button, Select } from 'antd';
-import { getAToken, getRToken, getUser } from "../authentication"
-import * as util from '../util' 
+import { Button, Select } from 'antd'
+import { Link } from "react-router-dom"
+import { getUser } from "../authentication"
 import axios from 'axios'
 import {history } from './history'
 import IconSlider from './IconSlider'
 
 const { Option } = Select;
 
-
 class UploadPage extends React.Component {
     constructor(props){
         super(props)
         this.state = {
-            user: getUser(),
+            USER: getUser(),
             selectedFile : null,
             uploadedFileName: '',
             dt: '',
@@ -29,8 +28,8 @@ class UploadPage extends React.Component {
     }
 
     fileUploadHandler=()=>{
-        const {user, selectedFile, uploadedFileName, dt, satis, city} = this.state
-        const url = 'http://localhost:8080/daily/' + user.id
+        const {USER, selectedFile, uploadedFileName, dt, satis, city} = this.state
+        const url = 'http://54.180.147.246:8080/daily/' + USER.id
         const fd = new FormData()
 
         if(!this.state.selectedFile){
@@ -76,6 +75,10 @@ class UploadPage extends React.Component {
         return(
             <div className="upload-container">
                 <h1>Upload your Daily Look</h1>
+
+                <Link to="/main">
+                    <Button type="default" className="btn-upload" block>Back</Button>
+                </Link>
 
                 <input 
                     type="file" 
