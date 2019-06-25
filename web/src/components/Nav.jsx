@@ -13,19 +13,17 @@ class Nav extends React.Component {
     return (
       <div className="navbar-wrapper">
         <div className="navbar-container">
+          {currentPath==='/'
+          &&
+          (<Link to='/main'>
+            <p id="logo">Look Morning</p>
+          </Link>)}
 
-        {currentPath==='/'
-        &&
-        (<Link to='/main'>
-        <p id="logo">Look Morning</p>
-      </Link>)}
-
-      {currentPath==='/main'
-        &&
-        (<Link to='/'>
-        <p id="logo">Look Morning</p>
-      </Link>)}
-
+        {currentPath==='/main'
+          &&
+          (<Link to='/'>
+            <p id="logo">Look Morning</p>
+          </Link>)}
         </div>
       </div>
     )

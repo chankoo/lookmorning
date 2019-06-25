@@ -6,13 +6,10 @@ import { Button, message } from 'antd'
 class CurrentWeather extends React.Component {
   constructor(props){
     super(props)
-    this.state = {
-    }
+    this.state = {}
   }
 
   componentDidMount = () => {
-    console.log('get CurrentWeather:')
-    
     const {city, country} = this.props
     const base = "http://54.180.147.246:8080/weather/now"
     const url = base+'?'+'city=' + city + '&' + 'country=' + country + 'units=metric'
@@ -30,10 +27,7 @@ class CurrentWeather extends React.Component {
           'description': data['weather'][0]['description'],
           'img_src': 'http://openweathermap.org/img/w/'+data['weather'][0]['icon']+'.png',
           'temp': data['main']['temp'],
-          'temp_min': data['main']['temp_min'],
-          'temp_max': data['main']['temp_max'],
           'humidity': data['main']['humidity'],
-          'pressure': data['main']['pressure'],
           'wind_speed': data['wind']['speed'],
           'clouds': data['clouds']['all'],
           'precipitation': 0
@@ -41,18 +35,15 @@ class CurrentWeather extends React.Component {
         if(data['rain']){
           this.setState({
             'precipitation': data['rain']['1h']
-          })
-        }
+          })}
       })
-      .catch(e=>{
-        alert(e)
-        console.log(e)
+      .catch(error=>{
+        message.error(error)
       })
   }
 
   handleLookNow=()=>{
     // fetch cluster when looknow clicked
-    console.log('handleLookNow')
     const {temp, wind_speed, humidity, clouds, precipitation} = this.state
     const {onClickLookNow} = this.props
     
@@ -74,7 +65,6 @@ class CurrentWeather extends React.Component {
     fetch(base, requestOptions)
     .then(util.handleResponse)
     .then(response => {
-      response = JSON.parse(response)
       const { cluster, is_rain } = response.data
       onClickLookNow(cluster, is_rain) // cluster, is_rain to Server( from main to server)
     })
@@ -84,7 +74,7 @@ class CurrentWeather extends React.Component {
   }
 
     render() {
-      const {weather, temp, temp_min, temp_max, humidity, pressure, wind_speed, clouds, description, img_src } = this.state
+      const {temp, humidity, wind_speed, clouds, description, img_src } = this.state
       const { city, country, USER} = this.props
       return (
         <React.Fragment>
@@ -100,13 +90,13 @@ class CurrentWeather extends React.Component {
                       src={img_src}
                       alt="icon"
                       />
-                      <Weather 
-                        temperature={temp}
-                        temp_min={temp_min}
-                        temp_max={temp_max}
-                        humidity={humidity}
+                      <Weather
                         city={city}
                         country={country}
+                        temperature={temp}
+                        wind_speed={wind_speed}
+                        humidity={humidity}
+                        clouds={clouds}
                         description={description}
                       />
                     </div>
@@ -114,7 +104,7 @@ class CurrentWeather extends React.Component {
                   {USER&&
                     (<Button 
                       type="primary" className='btn-looknow' block
-                      // onClick={this.handleLookNow}
+                      onClick={this.handleLookNow}
                     >
                       Look Now
                     </Button>)}

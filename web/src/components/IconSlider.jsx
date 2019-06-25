@@ -19,7 +19,6 @@ class IconSlider extends React.Component {
   render() {
     const { max, min } = this.props;
     const { value } = this.state;
-    
     const mid = ((max - min) / 2).toFixed(5);
     const preColor = max >= mid ? '' : 'rgba(0, 0, 0, .45)';
     const nextColor = max >= mid ? 'rgba(0, 0, 0, .45)' : '';

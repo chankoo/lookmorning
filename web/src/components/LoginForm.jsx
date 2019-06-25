@@ -8,7 +8,6 @@ import * as util from '../util'
 class LoginForm extends React.Component {
   constructor(props) {
     super(props)
-
     logout()
     this.name = null
     this.password = null

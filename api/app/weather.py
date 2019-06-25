@@ -1,7 +1,5 @@
 import requests
 
-# with open("key.json", 'r') as fp:
-#     API_KEY = json.load(fp)['key']
 API_KEY = '60efa98fd883262c59309ae9e81183a4'
 
 def query_now(city, country):
@@ -13,8 +11,7 @@ def query_now(city, country):
     except Exception as e:
         print(e)
         data = None
-    # finally:
-    #     print(data)
+
     return data
 
 
@@ -27,15 +24,5 @@ def query_5day(city, country):
     except Exception as e:
         print(e)
         data = None
-    # finally:
 
     return data
-
-
-
-if __name__ == '__main__':
-    city = "London"
-    country = "uk"
-
-    query_now(city, country)
-    query_5day(city, country)

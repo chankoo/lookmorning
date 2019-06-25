@@ -1,9 +1,9 @@
 import React from 'react'
-import { Button, Select } from 'antd'
+import { Button, Select, message } from 'antd'
 import { Link } from "react-router-dom"
 import { getUser } from "../authentication"
 import axios from 'axios'
-import {history } from './history'
+import { history } from './history'
 import IconSlider from './IconSlider'
 
 const { Option } = Select;
@@ -28,12 +28,12 @@ class UploadPage extends React.Component {
     }
 
     fileUploadHandler=()=>{
-        const {USER, selectedFile, uploadedFileName, dt, satis, city} = this.state
+        const {USER, selectedFile, satis, city} = this.state
         const url = 'http://54.180.147.246:8080/daily/' + USER.id
         const fd = new FormData()
 
         if(!this.state.selectedFile){
-            console.log('no selected file')
+            message.error('no selected file')
             return
         }
 
@@ -41,29 +41,24 @@ class UploadPage extends React.Component {
         axios.post(url + '/image-upload',fd)  // image upload to s3
         .then(response => {
             console.log(response.data.message)
-            this.setState({
-                uploadedFileName: response.data.filename,
-                dt: response.data.dt
-            })
-            
-        })
-        .catch(error => {console.log(error)})
-
-        const requestOptions = {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                dt: dt,
+            return JSON.stringify({
+                dt: response.data.dt,
                 satis: satis,
-                file_name: uploadedFileName,
+                file_name: response.data.filename,
                 city: city
             })
-        }
-
-        fetch(url, requestOptions)  // add to db
-        .then(res =>{console.log(res)})
+        })
+        .then(data=>{
+            fetch(url, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: data
+            })
+        })
         .then(history.push('/main'))
-        .catch(error=>{console.log(error)})
+        .catch(error => {
+            message.error(error)
+        })
     }
 
     handleSatisChange =(value) =>{this.setState({satis: value})}
@@ -71,11 +66,9 @@ class UploadPage extends React.Component {
     onSelectChange=(value)=>{this.setState({city:value})}
 
     render(){
-        console.log("UploadPage render")
         return(
             <div className="upload-container">
                 <h1>Upload your Daily Look</h1>
-
                 <Link to="/main">
                     <Button type="default" className="btn-upload" block>Back</Button>
                 </Link>
@@ -84,7 +77,6 @@ class UploadPage extends React.Component {
                     type="file" 
                     onChange={this.fileSelectedHandler}
                 />
-
                 <Select
                     showSearch
                     style={{ width: 200 }}
@@ -99,7 +91,6 @@ class UploadPage extends React.Component {
                 </Select>
                 
                 <IconSlider min={1} max={3} handleSatisChange={this.handleSatisChange}/>
-
                 <Button onClick={this.fileUploadHandler}>Upload</Button>
             </div>
         )

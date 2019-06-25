@@ -1,6 +1,6 @@
 import React from 'react'
 import * as util from '../util';
-import { Table } from 'antd';
+import { Table, message } from 'antd';
 
 class WeeklyWeather extends React.Component {
   constructor(props){
@@ -11,10 +11,7 @@ class WeeklyWeather extends React.Component {
   }
 
   componentDidMount = () => {
-    console.log('WeeklyWeather componentDidMount:')
-    
     const {city, country} = this.props
-
     const base = "http://54.180.147.246:8080/weather/weekly"
     const url = base+'?'+'city=' + city + '&' + 'country=' + country + 'units=metric'
     fetch(url, {
@@ -32,6 +29,7 @@ class WeeklyWeather extends React.Component {
                 'dt_txt':weather['dt_txt'],
                 'weather':weather['weather'][0]['main'],
                 'temp':weather['main']['temp'],
+                'wind':weather['wind']['speed'],
                 'humidity':weather['main']['humidity'],
                 'clouds':weather['clouds']['all'],
                 'key':weather['dt']
@@ -42,11 +40,9 @@ class WeeklyWeather extends React.Component {
             'weekly': newWeekly
         })
       })
-      .catch(e=>{
-        alert(e)
-        console.log(e)
+      .catch(error=>{
+        message.error(error)
       })
-      
   }
 
     render() {
@@ -66,6 +62,11 @@ class WeeklyWeather extends React.Component {
           title: 'Temperature',
           dataIndex: 'temp',
           key: 'temp',
+        },
+        {
+          title: 'Wind',
+          dataIndex: 'wind',
+          key: 'wind',
         },
         {
           title: 'Humidity',

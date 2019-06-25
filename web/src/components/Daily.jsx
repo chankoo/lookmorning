@@ -1,7 +1,6 @@
 import React from 'react'
-import { Card, Icon } from 'antd'
+import { Card, Icon, message } from 'antd'
 import './Daily.css'
-import { history } from './history'
 import * as util from '../util'
 
 const { Meta } = Card;
@@ -15,13 +14,11 @@ class Daily extends React.Component {
     }
 
     handleScrap=(user_id, daily_id) =>{
-        console.log('handleScrap')
         const {handleDailysUpdate} = this.props
 
         this.setState({
             'is_scrap': !this.state.is_scrap
         })
-
         const requestOptions = {
             method: 'POST',
             headers: {
@@ -39,20 +36,14 @@ class Daily extends React.Component {
             handleDailysUpdate(daily_id)
         })
         .catch(error => {
-            alert(error)
+            message.error(error)
         })
-    }
-
-    handleSize=()=>{
-        console.log('handleSize')
-
-
     }
 
     render(){
         const {daily_id, user_id, datetime, img_path, satis, creater_id} = this.props
         const {is_scrap} = this.state
-        const {handleScrap, handleSize} = this
+        const {handleScrap} = this
 
         return(
             <div className="card-container">
@@ -71,8 +62,6 @@ class Daily extends React.Component {
                                 else{
                                     el.setAttribute("style", "max-width: 300px")
                                 }
-                                
-                                handleSize()
                             }}
                         />
                     }
@@ -108,8 +97,7 @@ class Daily extends React.Component {
                 > 
                     <Meta
                         title={datetime}
-                        description={creater_id}
-                        // style={{width:"300px", height:"50px"}}
+                        description={satis}
                     />
                 </Card>
             </div>

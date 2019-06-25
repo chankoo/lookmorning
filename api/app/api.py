@@ -87,7 +87,7 @@ class ImageUpload(Resource):
             # create filename accroding to userid, filename(raw), timestamp
             exifTS = ''
             fn = image.filename
-            read_img = image.read()
+            # read_img = image.read()
             i = Image.open(image.stream)
 
             # find taken time info from exif meta data
@@ -138,11 +138,12 @@ class Dailys(Resource):
         for myscrap in myscraps:
             except_daily_ids.append(myscrap.daily_id)
 
-        # query by weather cluster
-        weathers = Weather.query.filter_by(cluster=cluster, is_rain=is_rain).all()  # 현재 날씨와 같은 클러스터의 날씨들을 쿼리
+        # query weathers belong to the same cluster
+        weathers = Weather.query.filter_by(cluster=cluster, is_rain=is_rain).all()
         dailys = []
         for weather in weathers:
-            weather_dailys = Daily.query.filter_by(weather_id=weather.id).all()  # 해당 날씨에 촬영된 데일리룩 쿼리
+            # query dailys taken in that datetime
+            weather_dailys = Daily.query.filter_by(weather_id=weather.id).all()
             weather_dt = Weather.query.filter_by(id=weather.id).first().datetime
 
             for weather_daily in dictionalizer(weather_dailys):
@@ -156,7 +157,7 @@ class Dailys(Resource):
 
     def post(self, user_id):
         data = request.get_json()
-
+        print(data)
         # create daily record (id, weather_id, img_path, satis)
         img_path = 'https://project-lookmorning.s3.ap-northeast-2.amazonaws.com/dailylook/{}'.format(data['file_name'])
         satis = data['satis']
@@ -168,7 +169,7 @@ class Dailys(Resource):
         if weather:
             weather_id = weather.id
         else:
-            pass ## !!!!!
+            pass
 
         new_daily = Daily(weather_id=weather_id, img_path=img_path, satis=satis)
         db.session.add(new_daily)
@@ -215,14 +216,6 @@ class MyDailys(Resource):
             daily['is_scrap'] = False
             dailys.append(daily)
         return jsonify({"dailys": dailys, 'message': "get MyDaily successfully"})
-
-    # def post(self, user_id):
-    #     data = request.get_json()
-    #     daily_id = data['daily_id']
-    #     new_scrap = MyScrap(user_id, daily_id)
-    #     db.session.add(new_scrap)
-    #     db.session.commit()
-    #     return "scrap successfully"
 
 
 class MyScraps(Resource):
@@ -331,19 +324,18 @@ class Cluster(Resource):
                 stat = pickle.load(fp)
 
         # standard scale with raw data statistic
-        df = pd.DataFrame.from_dict(data)
         weather = [data['temp'], ]
-        for col in df.colums:
+        for col in data.keys():
             if col in stat.index:
-                weather.append((df['col'] - stat.loc[col, 'mean']) / stat.loc[col, 'std'])
-
+                weather.append((data[col] - stat.loc[col, 'mean']) / stat.loc[col, 'std'])
 
         cluster = km.predict(pd.np.array([weather]))[0]
+        print('Assigned Cluster is', cluster)
 
         return jsonify({
             "message": "cluster assigned",
             "data": {
-                "cluster": cluster,
-                "is_rain": is_rain
+                "cluster": str(cluster),
+                "is_rain": str(is_rain)
             }
         })

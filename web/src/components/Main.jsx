@@ -27,8 +27,9 @@ class MainPage extends React.Component {
 
   onSelectChange=(value)=>{this.setState({city:value})}
 
+  shouldComponentUpdate(nextProps, nextState) {return true}
+
   onClickLookNow=(cluster, is_rain)=>{
-    console.log("onClickLookNow")
     const {USER} = this.state
     const base = "http://54.180.147.246:8080/daily"
         const url = base + '/' + USER.id + '/' + cluster + '/' + is_rain
@@ -52,7 +53,7 @@ class MainPage extends React.Component {
   }
 
   render() {
-    const {city, country, USER, lookNow} = this.state
+    const {city, country, USER, lookNow, dailys} = this.state
   
     return (
       <React.Fragment>
@@ -101,14 +102,14 @@ class MainPage extends React.Component {
             <CurrentWeather city={city} country={country} USER={USER} onClickLookNow={this.onClickLookNow}/>
           </section>
         </section>
-
+            
         {lookNow&&
         (<section className="more-daily-wrapper">
           <div className="otherDaily-container">
-            <OtherDaily cluster={this.state.cluster} user_id={USER.id}></OtherDaily>
+            <OtherDaily user_id={USER.id} dailys={dailys}></OtherDaily>
           </div>
-        </section>)}
-
+        </section>)
+        }
       </React.Fragment>
     )
   }

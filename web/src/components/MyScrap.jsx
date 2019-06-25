@@ -2,7 +2,7 @@ import React from 'react'
 import Daily from './Daily'
 import * as util from '../util'
 import { getAToken, getRToken } from "../authentication"
-
+import { message } from 'antd'
 
 class MyScrap extends React.Component {
     constructor(props){
@@ -13,7 +13,6 @@ class MyScrap extends React.Component {
     }
 
     componentDidMount=()=>{
-        console.log('MyScrap componentDidMount')
         const {user_id} = this.props
         const base = "http://54.180.147.246:8080/user/"
         const url = base + user_id + '/myscrap'
@@ -31,20 +30,17 @@ class MyScrap extends React.Component {
         .then(util.handleResponse)
         .then(response => {
             const data = response
-            console.log(data.message)
 
             this.setState({
                 'dailys': data['dailys']
             })
         })
         .catch(error=>{
-            console.log(error)
+            message.error(error)
         })
     }
 
     handleDailysUpdate=(daily_id)=>{
-        console.log('handleDailysUpdate')
-        
         this.setState({
             'dailys': this.state.dailys
         })
