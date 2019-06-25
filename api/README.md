@@ -14,13 +14,13 @@ mysql -u root -p
 
 ```mysql
 
-CREATE DATABASE test default CHARACTER SET UTF8; 
+CREATE DATABASE lookmorning default CHARACTER SET UTF8; 
 
-USE test;
+USE lookmorning;
 
 CREATE TABLE user (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(50) NOT NULL, password VARCHAR(256) ) ENGINE=INNODB;
 
-CREATE TABLE weather (id INT PRIMARY KEY AUTO_INCREMENT, city VARCHAR(30), datetime VARCHAR(50) NOT NULL, cluster INT(8) NOT NULL ) ENGINE=INNODB;
+CREATE TABLE weather (id INT PRIMARY KEY AUTO_INCREMENT, city VARCHAR(30), datetime VARCHAR(50) NOT NULL, cluster INT(8) NOT NULL, is_rain TINYINT NOT NULL ) ENGINE=INNODB;
 
 CREATE TABLE daily (id INT PRIMARY KEY AUTO_INCREMENT, weather_id INT, img_path VARCHAR(256), satis INT, FOREIGN KEY (weather_id) REFERENCES weather (id) ) ENGINE=INNODB;
 
@@ -30,7 +30,6 @@ CREATE TABLE mydaily (id INT PRIMARY KEY AUTO_INCREMENT, user_id INT, daily_id I
 
 CREATE TABLE login_session (id INT PRIMARY KEY AUTO_INCREMENT, user_id INT, jti VARCHAR(500), FOREIGN KEY (user_id) REFERENCES user (id)) ENGINE=INNODB;
 
-INSERT INTO mydaily (user_id, daily_id) VALUES (1, 307);
 
 ```
 

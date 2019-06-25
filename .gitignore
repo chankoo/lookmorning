@@ -1,8 +1,5 @@
 
 .idea/
-*.json
-*.db
-*.xlsx
 static/
 
 # Created by https://www.gitignore.io/api/linux,flask,python,pycharm,reactnative,visualstudiocode
