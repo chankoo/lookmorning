@@ -11,7 +11,7 @@ project Goal: 지금 날씨에 적절한 데일리룩을 보여주어 오늘의 
 
 
 ## Architecture
-![lookmoring_arch](https://user-images.githubusercontent.com/38183218/60135539-e90c2f80-97dc-11e9-9764-5e2b742ba418.png)
+![arch](https://user-images.githubusercontent.com/38183218/60137151-0d6a0b00-97e1-11e9-836a-56c2721b025b.png)
 
 
 ## UI
