@@ -1,7 +1,7 @@
 import React from 'react'
 import Daily from './Daily'
 import * as util from '../util'
-import { getAToken, getRToken } from "../authentication"
+import { getAToken, getRToken, logout } from "../authentication"
 import { message } from 'antd'
 
 class MyDaily extends React.Component {
@@ -35,7 +35,8 @@ class MyDaily extends React.Component {
             })
         })
         .catch(error=>{
-            message.error(error)
+            console.log(error)
+            logout()
         })
     }
 
@@ -45,7 +46,6 @@ class MyDaily extends React.Component {
         const {dailys} = this.state
         const {user_id} = this.props
 
-        // dailys 배열을 map 이용해 컴포넌트 배열 myDailys로 변환
         const myDailys = dailys.map(
             ({daily_id, datetime, img_path, satis}) => (
                 <Daily

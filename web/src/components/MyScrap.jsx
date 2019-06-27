@@ -1,7 +1,7 @@
 import React from 'react'
 import Daily from './Daily'
 import * as util from '../util'
-import { getAToken, getRToken } from "../authentication"
+import { getAToken, getRToken, logout } from "../authentication"
 import { message } from 'antd'
 
 class MyScrap extends React.Component {
@@ -30,30 +30,38 @@ class MyScrap extends React.Component {
         .then(util.handleResponse)
         .then(response => {
             const data = response
-
             this.setState({
                 'dailys': data['dailys']
             })
+            console.log(data)
         })
         .catch(error=>{
-            message.error(error)
+            console.log(error)
+            logout()
         })
     }
 
-    handleDailysUpdate=(daily_id)=>{
-        this.setState({
-            'dailys': this.state.dailys
-        })
-    }
+    handleDailysUpdate=(daily_id, is_scrap)=>{
+        let put_dailys = this.state.dailys
 
-    shouldComponentUpdate(nextProps, nextState) {return true}
+        if(!is_scrap){
+            for(let i=0; i < put_dailys.length; i++ ){
+                if(put_dailys[i].daily_id === daily_id){
+                    put_dailys.splice(i, 1)
+                    this.setState({ 
+                        'dailys': put_dailys
+                    })
+                    break
+                }
+            }
+        }
+    }
 
     render(){
         const {dailys} = this.state
         const {user_id} = this.props
         const {handleDailysUpdate} =this
 
-        // dailys 배열을 map 이용해 컴포넌트 배열로 변환
         const myScraps = dailys.map(
             ({daily_id, datetime, img_path, satis, creater_id}) => (
                 <Daily

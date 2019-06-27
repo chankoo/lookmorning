@@ -15,6 +15,7 @@ class Daily extends React.Component {
 
     handleScrap=(user_id, daily_id) =>{
         const {handleDailysUpdate} = this.props
+        console.log(daily_id)
 
         this.setState({
             'is_scrap': !this.state.is_scrap
@@ -32,15 +33,13 @@ class Daily extends React.Component {
         fetch(base+user_id+'/myscrap', requestOptions)
         .then(util.handleResponse)
         .then(response => {
-            console.log(response.message)
-            handleDailysUpdate(daily_id)
+            message.success(response.message)
+            handleDailysUpdate(daily_id, this.state.is_scrap)
         })
         .catch(error => {
             message.error(error)
         })
     }
-
-    shouldComponentUpdate(nextProps, nextState) {return true}
 
     render(){
         const {daily_id, user_id, datetime, img_path, satis} = this.props
@@ -68,33 +67,22 @@ class Daily extends React.Component {
                         />
                     }
                     actions= {
-                        !this.props.is_mine
-                        &&
-                        (
-                        is_scrap 
-                            &&
-                            
-                                [<Icon 
-                                    type="heart" 
-                                    theme="filled"
-                                    onClick={(e)=>{
-                                        e.preventDefault()
-                                        e.stopPropagation()
-                                        handleScrap(user_id, daily_id)
-                                    }}/>]
-
+                        !this.props.is_mine&&
+                            (is_scrap&&[<Icon 
+                                            type="heart" 
+                                            theme="filled"
+                                            onClick={(e)=>{
+                                                e.preventDefault()
+                                                e.stopPropagation()
+                                                handleScrap(user_id, daily_id)}}/>]
                             ||
-                            !is_scrap
-                            &&
-                                [<Icon 
-                                    type="heart"
-                                    onClick={(e)=>{
-                                        e.preventDefault()
-                                        e.stopPropagation()
-                                        handleScrap(user_id, daily_id)
-                                    }}
-                                />]
-                        )
+                            !is_scrap&&[<Icon 
+                                            type="heart"
+                                            onClick={(e)=>{
+                                                e.preventDefault()
+                                                e.stopPropagation()
+                                                handleScrap(user_id, daily_id)}}/>]
+                            )
                     }
                 > 
                     <Meta

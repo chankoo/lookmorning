@@ -84,7 +84,7 @@ class ImageUpload(Resource):
             if image.filename == '':
                 return redirect(request.url)
 
-            # create filename accroding to userid, filename(raw), timestamp
+            # create filename according to userid, filename(raw), timestamp
             exifTS = ''
             fn = image.filename
             read_img = image.read()
@@ -129,6 +129,7 @@ class ImageUpload(Resource):
 
 class Dailys(Resource):
     def get(self, user_id, cluster, is_rain):
+
         # dailys user created or scrapped must be excepted
         except_daily_ids = []
         mydailys = MyDaily.query.filter_by(user_id=user_id).all()
@@ -155,42 +156,42 @@ class Dailys(Resource):
         random.shuffle(dailys)
         return json.dumps(dailys)
 
-    def post(self, user_id):
+    def post(self): #    user_id
         data = request.get_json()
-        print(data)
-        # create daily record (id, weather_id, img_path, satis)
-        img_path = 'https://project-lookmorning.s3.ap-northeast-2.amazonaws.com/dailylook/{}'.format(data['file_name'])
-        satis = data['satis']
-        dt = data['dt']
-        city = data['city']
 
-        weather = Weather.query.filter_by(city=city, datetime=dt).first()
-        print(weather)
-        if weather:
-            weather_id = weather.id
-        else:
-            pass
-
-        new_daily = Daily(weather_id=weather_id, img_path=img_path, satis=satis)
-        db.session.add(new_daily)
-        db.session.commit()
-
-        # create mydaily record (id, user_id, daily_id)
-        daily_id = Daily.query.filter_by(img_path=img_path).first().id
-        new_myDaily = MyDaily(user_id, daily_id)
-        db.session.add(new_myDaily)
-        db.session.commit()
+        # # create daily record (id, weather_id, img_path, satis)
+        # img_path = 'https://project-lookmorning.s3.ap-northeast-2.amazonaws.com/dailylook/{}'.format(data['file_name'])
+        # satis = data['satis']
+        # dt = data['dt']
+        # city = data['city']
+        #
+        # weather = Weather.query.filter_by(city=city, datetime=dt).first()
+        # if weather:
+        #     weather_id = weather.id
+        # else:
+        #     pass
+        #
+        # new_daily = Daily(weather_id=weather_id, img_path=img_path, satis=satis)
+        # db.session.add(new_daily)
+        # db.session.commit()
+        #
+        # # create mydaily record (id, user_id, daily_id)
+        # daily_id = Daily.query.filter_by(img_path=img_path).first().id
+        # new_myDaily = MyDaily(user_id, daily_id)
+        # db.session.add(new_myDaily)
+        # db.session.commit()
 
         # insert dummy images to db
-        # try:
-        #     dt = datetime.datetime.fromtimestamp(data['timestamp']).strftime('%Y-%m-%d %H')
-        #     weather_id = Weather.query.filter_by(city=data['city'], datetime=dt).first().id
-        #     new_daily = Daily(weather_id=weather_id, img_path=data['img_path'], satis=data['satis'])
-        #     db.session.add(new_daily)
-        #     db.session.commit()
-        # except Exception as e:
-        #     print('err')
-        #     pass
+        KST = datetime.timezone(datetime.timedelta(hours=9))
+        try:
+            dt = datetime.datetime.fromtimestamp(data['timestamp'], tz=KST).strftime('%Y-%m-%d %H')
+            weather_id = Weather.query.filter_by(city=data['city'], datetime=dt).first().id
+            new_daily = Daily(weather_id=weather_id, img_path=data['img_path'], satis=data['satis'])
+            db.session.add(new_daily)
+            db.session.commit()
+        except Exception as e:
+            print('err')
+            pass
 
         return jsonify({'message': "MyDaily uploaded"})
 
@@ -198,12 +199,8 @@ class Dailys(Resource):
 class MyDailys(Resource):
     @jwt_required
     def get(self, user_id):
-        print(MyDaily.query.filter_by(user_id=user_id).all())
-        if user_id:
-            my_dailys = MyDaily.query.filter_by(
-                user_id=user_id).all()
-        else:
-            return "user not found"
+        my_dailys = MyDaily.query.filter_by(
+            user_id=user_id).all()
 
         dailys = []
         for my_daily in my_dailys:
@@ -221,7 +218,6 @@ class MyDailys(Resource):
 class MyScraps(Resource):
     @jwt_required
     def get(self, user_id):
-        print(MyScrap.query.filter_by(user_id=user_id).all())
         if user_id:
             scraps = MyScrap.query.filter_by(
                 user_id=user_id).all()
@@ -308,7 +304,7 @@ class Cluster(Resource):
     def post(self):  # assign cluster and return it
         data = request.get_json()
 
-        if data['precipitation'] is not '0':
+        if data['precipitation'] is not 0:
             is_rain = 1
             with open('../static/model_km1.pkl', 'rb') as fp:
                 km = pickle.load(fp)
