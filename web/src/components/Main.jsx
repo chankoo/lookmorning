@@ -30,7 +30,7 @@ class MainPage extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {return true}
 
   onClickLookNow=(cluster, is_rain)=>{
-    console.log('onClickLookNow\n', 'cluster is', cluster)
+    console.log('onClickLookNow', 'is_rain?',is_rain, ' & cluster is', cluster)
     const {USER} = this.state
     const base = "http://54.180.147.246:8080/daily"
         const url = base + '/' + USER.id + '/' + cluster + '/' + is_rain

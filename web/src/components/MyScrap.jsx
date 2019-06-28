@@ -18,7 +18,8 @@ class MyScrap extends React.Component {
         const url = base + user_id + '/myscrap'
         const AToken = getAToken()
         const RToken = getRToken()
-
+        
+        console.log('MyScrap fetch')
         fetch(url, {
         method: 'GET',
         headers: { 

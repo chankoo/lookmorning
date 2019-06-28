@@ -12,7 +12,7 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 from models import db, User, Daily, Weather, MyScrap, MyDaily, LoginSession
 from weather import query_now, query_5day
-from utils import serializer, dictionalizer
+from utils import serializer, dictionalizer, is_person
 
 
 class Users(Resource):
@@ -154,46 +154,52 @@ class Dailys(Resource):
                 dailys += [weather_daily]  # concat weather_daily in which datetime added
 
         random.shuffle(dailys)
+
+        # only 100?
+
+        # daily images contain 'person' label with pretrained faster-RCNN model
+        print(is_person(dailys[0].img_path))
+
         return json.dumps(dailys)
 
-    def post(self): #    user_id
+    def post(self, user_id):
         data = request.get_json()
 
-        # # create daily record (id, weather_id, img_path, satis)
-        # img_path = 'https://project-lookmorning.s3.ap-northeast-2.amazonaws.com/dailylook/{}'.format(data['file_name'])
-        # satis = data['satis']
-        # dt = data['dt']
-        # city = data['city']
-        #
-        # weather = Weather.query.filter_by(city=city, datetime=dt).first()
-        # if weather:
-        #     weather_id = weather.id
-        # else:
-        #     pass
-        #
-        # new_daily = Daily(weather_id=weather_id, img_path=img_path, satis=satis)
-        # db.session.add(new_daily)
-        # db.session.commit()
-        #
-        # # create mydaily record (id, user_id, daily_id)
-        # daily_id = Daily.query.filter_by(img_path=img_path).first().id
-        # new_myDaily = MyDaily(user_id, daily_id)
-        # db.session.add(new_myDaily)
-        # db.session.commit()
+        # create daily record (id, weather_id, img_path, satis)
+        img_path = 'https://project-lookmorning.s3.ap-northeast-2.amazonaws.com/dailylook/{}'.format(data['file_name'])
+        satis = data['satis']
+        dt = data['dt']
+        city = data['city']
 
-        # insert dummy images to db
-        KST = datetime.timezone(datetime.timedelta(hours=9))
-        try:
-            dt = datetime.datetime.fromtimestamp(data['timestamp'], tz=KST).strftime('%Y-%m-%d %H')
-            weather_id = Weather.query.filter_by(city=data['city'], datetime=dt).first().id
-            new_daily = Daily(weather_id=weather_id, img_path=data['img_path'], satis=data['satis'])
-            db.session.add(new_daily)
-            db.session.commit()
-        except Exception as e:
-            print('err')
+        weather = Weather.query.filter_by(city=city, datetime=dt).first()
+        if weather:
+            weather_id = weather.id
+        else:
             pass
 
-        return jsonify({'message': "MyDaily uploaded"})
+        new_daily = Daily(weather_id=weather_id, img_path=img_path, satis=satis)
+        db.session.add(new_daily)
+        db.session.commit()
+
+        # create mydaily record (id, user_id, daily_id)
+        daily_id = Daily.query.filter_by(img_path=img_path).first().id
+        new_myDaily = MyDaily(user_id, daily_id)
+        db.session.add(new_myDaily)
+        db.session.commit()
+
+        # insert dummy images to db
+        # KST = datetime.timezone(datetime.timedelta(hours=9))
+        # try:
+        #     dt = datetime.datetime.fromtimestamp(data['timestamp'], tz=KST).strftime('%Y-%m-%d %H')
+        #     weather_id = Weather.query.filter_by(city=data['city'], datetime=dt).first().id
+        #     new_daily = Daily(weather_id=weather_id, img_path=data['img_path'], satis=data['satis'])
+        #     db.session.add(new_daily)
+        #     db.session.commit()
+        # except Exception as e:
+        #     print(e)
+        #     return jsonify({'message': "fail to upload"})
+        #
+        # return jsonify({'message': "MyDaily uploaded"})
 
 
 class MyDailys(Resource):
@@ -218,11 +224,7 @@ class MyDailys(Resource):
 class MyScraps(Resource):
     @jwt_required
     def get(self, user_id):
-        if user_id:
-            scraps = MyScrap.query.filter_by(
-                user_id=user_id).all()
-        else:
-            return jsonify({"dailys": [], 'message': "user not found"})
+        scraps = MyScrap.query.filter_by(user_id=user_id).all()
 
         dailys = []
         for scrap in scraps:
@@ -257,12 +259,18 @@ class MyScraps(Resource):
         if scrap:
             db.session.delete(scrap)
             db.session.commit()
-            return jsonify({"message": "unscrap successfully"})
+            return jsonify({
+                "message": "unscrap successfully",
+                "data": {"is_scrap": False}
+            })
 
         new_scrap = MyScrap(user_id, daily_id)
         db.session.add(new_scrap)
         db.session.commit()
-        return jsonify({"message": "scrap successfully"})
+        return jsonify({
+            "message": "scrap successfully",
+            "data": {"is_scrap": False}
+        })
 
 
 class UserLogin(Resource):

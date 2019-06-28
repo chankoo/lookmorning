@@ -16,10 +16,8 @@ class Daily extends React.Component {
     handleScrap=(user_id, daily_id) =>{
         const {handleDailysUpdate} = this.props
         console.log(daily_id)
+        console.log('handleScrap before', this.state.is_scrap )
 
-        this.setState({
-            'is_scrap': !this.state.is_scrap
-        })
         const requestOptions = {
             method: 'POST',
             headers: {
@@ -34,6 +32,12 @@ class Daily extends React.Component {
         .then(util.handleResponse)
         .then(response => {
             message.success(response.message)
+            this.setState({
+                'is_scrap': response.data.is_scrap
+            })
+        })
+        .then(()=>{
+            console.log('fetch then',this.state.is_scrap )
             handleDailysUpdate(daily_id, this.state.is_scrap)
         })
         .catch(error => {
