@@ -15,8 +15,8 @@ class Daily extends React.Component {
 
     handleScrap=(user_id, daily_id) =>{
         const {handleDailysUpdate} = this.props
-        console.log(daily_id)
-        console.log('handleScrap before', this.state.is_scrap )
+        // console.log(daily_id)
+        // console.log('handleScrap before', this.state.is_scrap )
 
         const requestOptions = {
             method: 'POST',
@@ -33,12 +33,12 @@ class Daily extends React.Component {
         .then(response => {
             message.success(response.message)
             this.setState({
-                'is_scrap': response.data.is_scrap
+                'is_scrap': !this.state.is_scrap
             })
         })
         .then(()=>{
-            console.log('fetch then',this.state.is_scrap )
-            handleDailysUpdate(daily_id, this.state.is_scrap)
+            // console.log('fetch then',this.state.is_scrap )
+            handleDailysUpdate(daily_id, !this.state.is_scrap)
         })
         .catch(error => {
             message.error(error)
@@ -56,12 +56,12 @@ class Daily extends React.Component {
                     cover={
                         <img
                             className="img"
-                            alt="dailylook image"
+                            alt="dailylook"
                             id={daily_id}
                             src={img_path}
                             onClick={(e)=>{
                                 const el = document.getElementById({daily_id}.daily_id)
-                                if(el.style.maxWidth != "100%"){
+                                if(el.style.maxWidth !== "100%"){
                                     el.setAttribute("style", "max-width: 100%")
                                 }
                                 else{
@@ -71,27 +71,35 @@ class Daily extends React.Component {
                         />
                     }
                     actions= {
-                        !this.props.is_mine&&
+                        (!this.props.is_mine&&
                             (is_scrap&&[<Icon 
                                             type="heart" 
                                             theme="filled"
                                             onClick={(e)=>{
                                                 e.preventDefault()
                                                 e.stopPropagation()
-                                                handleScrap(user_id, daily_id)}}/>]
+                                                handleScrap(user_id, daily_id)}}/>,]
                             ||
                             !is_scrap&&[<Icon 
                                             type="heart"
                                             onClick={(e)=>{
                                                 e.preventDefault()
                                                 e.stopPropagation()
-                                                handleScrap(user_id, daily_id)}}/>]
+                                                handleScrap(user_id, daily_id)}}/>,]
                             )
+                        )
                     }
                 > 
                     <Meta
                         title={datetime}
-                        description={satis}
+                        description={
+                            this.props.is_mine&&
+                            (    
+                            (satis===3)&& <Icon type="smile"/>
+                            ||
+                            (satis===1)&& <Icon type="frown"/>
+                            )
+                            }
                     />
                 </Card>
             </div>

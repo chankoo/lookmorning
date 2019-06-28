@@ -2,7 +2,6 @@ import React from 'react'
 import Daily from './Daily'
 import * as util from '../util'
 import { getAToken, getRToken, logout } from "../authentication"
-import { message } from 'antd'
 
 class MyScrap extends React.Component {
     constructor(props){
@@ -19,7 +18,6 @@ class MyScrap extends React.Component {
         const AToken = getAToken()
         const RToken = getRToken()
         
-        console.log('MyScrap fetch')
         fetch(url, {
         method: 'GET',
         headers: { 
@@ -34,7 +32,6 @@ class MyScrap extends React.Component {
             this.setState({
                 'dailys': data['dailys']
             })
-            console.log(data)
         })
         .catch(error=>{
             console.log(error)

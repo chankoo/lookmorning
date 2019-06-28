@@ -2,7 +2,6 @@ import React from 'react'
 import Daily from './Daily'
 import * as util from '../util'
 import { getAToken, getRToken, logout } from "../authentication"
-import { message } from 'antd'
 
 class MyDaily extends React.Component {
     constructor(props){
@@ -18,7 +17,7 @@ class MyDaily extends React.Component {
         const url = base + user_id + '/mydaily'
         const AToken = getAToken()
         const RToken = getRToken()
-
+        
         fetch(url, {
         method: 'GET',
         headers: { 
@@ -39,8 +38,6 @@ class MyDaily extends React.Component {
             logout()
         })
     }
-
-    shouldComponentUpdate(nextProps, nextState) {return true}
 
     render(){
         const {dailys} = this.state

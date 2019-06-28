@@ -13,7 +13,7 @@ class WeeklyWeather extends React.Component {
   componentDidMount = () => {
     const {city, country} = this.props
     const base = "http://54.180.147.246:8080/weather/weekly"
-    const url = base+'?'+'city=' + city + '&' + 'country=' + country + 'units=metric'
+    const url = `${base}?city=${city}&country=${country}+&units=metric`
     fetch(url, {
       method: 'GET',
       headers: { 

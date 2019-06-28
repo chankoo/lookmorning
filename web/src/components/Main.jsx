@@ -27,10 +27,8 @@ class MainPage extends React.Component {
 
   onSelectChange=(value)=>{this.setState({city:value})}
 
-  shouldComponentUpdate(nextProps, nextState) {return true}
-
   onClickLookNow=(cluster, is_rain)=>{
-    console.log('onClickLookNow', 'is_rain?',is_rain, ' & cluster is', cluster)
+    // console.log('onClickLookNow', 'is_rain?',is_rain, ' & cluster is', cluster)
     const {USER} = this.state
     const base = "http://54.180.147.246:8080/daily"
         const url = base + '/' + USER.id + '/' + cluster + '/' + is_rain
@@ -43,7 +41,6 @@ class MainPage extends React.Component {
         .then(util.handleResponse)
         .then(response => {
             const data = JSON.parse(response)
-            console.log(data.length)
             this.setState({
                 'dailys': data,
                 'lookNow': true,
