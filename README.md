@@ -18,11 +18,11 @@ project Goal: 지금 날씨에 적절한 데일리룩을 보여주어 오늘의 
 > 현재 날씨
 > ![스크린샷, 2019-06-26 06-14-53](https://user-images.githubusercontent.com/38183218/60135047-d47b6780-97db-11e9-8b32-475f32b7c39a.png)
 
-> 유저 데일리룩 등록
+> 유저 데일리룩 업로드
 >![스크린샷, 2019-06-26 06-16-06](https://user-images.githubusercontent.com/38183218/60135048-d513fe00-97db-11e9-804d-1da1968e1675.png)
 
-> 유저 데일리룩 및 스크랩한 데일리룩
-> ![스크린샷, 2019-06-26 06-16-57](https://user-images.githubusercontent.com/38183218/60135049-d513fe00-97db-11e9-98f5-834eb87cd532.png)
+> 업로드 및 스크랩하여 데일리룩 저장
+> ![](https://user-images.githubusercontent.com/38183218/60347673-de2de680-99f8-11e9-9fe3-3df0d51ca347.png)
 
 > 현재 날씨에 맞는 데일리룩 노출
 > ![스크린샷, 2019-06-26 06-50-19](https://user-images.githubusercontent.com/38183218/60136286-b9f6bd80-97de-11e9-994c-6362ad4ef33d.png)
