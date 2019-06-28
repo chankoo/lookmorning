@@ -154,11 +154,15 @@ class Dailys(Resource):
                 dailys += [weather_daily]  # concat weather_daily in which datetime added
 
         random.shuffle(dailys)
-
-        # only 100?
+        if len(dailys) > 100:
+            dailys = dailys[:100]  # show maximal 100 images
 
         # daily images contain 'person' label with pretrained faster-RCNN model
-        print(is_person(dailys[0].img_path))
+        # Failed to allocate CPU Memory Error on EC2 free tier
+        # filtered_dailys = []
+        # for i, is_it in enumerate(list(map(is_person, dailys))):
+        #     if is_it:
+        #         filtered_dailys.append(dailys[i])
 
         return json.dumps(dailys)
 
