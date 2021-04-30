@@ -34,6 +34,6 @@ sklearn==0.0
 SQLAlchemy==1.3.3
 sqlparse==0.3.0
 tqdm==4.32.1
-urllib3==1.25.2
+urllib3==1.25.8
 Werkzeug==0.15.4
 
